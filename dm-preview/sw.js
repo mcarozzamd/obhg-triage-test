@@ -1,7 +1,7 @@
 // OBHG CLINICAL TRIAGE service worker. v24 (11 Nov 2026): precaches the plain-name diagram images the app shows; original diagram files are cached on first use.
 // Only deletes caches with its own prefix. Cache-first assets, network-first navigation. No network calls carry user input.
 const PREFIX = 'obhgdmpreview-';
-const CACHE = PREFIX + 'v24-55a5db33fd45';
+const CACHE = PREFIX + 'v24-d21cb59c046f';
 const ASSETS = [
   './',
   './index.html',
