@@ -1,0 +1,28 @@
+{
+  "name": "OB Triage (TEST PREVIEW)",
+  "short_name": "OB Triage PREVIEW",
+  "start_url": "./index.html",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#F4F7F8",
+  "theme_color": "#c00000",
+  "description": "TEST / PRACTICE SITE: not for patient care. OB hospitalist clinical triage reference · decision support only · not unit policy",
+  "icons": [
+    {
+      "src": "assets/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    },
+    {
+      "src": "assets/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ]
+}
