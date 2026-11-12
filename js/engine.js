@@ -318,6 +318,8 @@
       f.pphByQbl = f.qbl >= thr;
       f.qblThreshold = thr + (f.route ? ' (' + f.route + ')' : ' (route not stated; vaginal threshold used)');
     }
+    const lf = options && options.language;
+    if (lf && typeof lf === 'object') f.languageField = { preferred: ['en','es','other'].includes(lf.preferred) ? lf.preferred : '', interpreter: ['professional','family','none'].includes(lf.interpreter) ? lf.interpreter : '' };
     S.enrich(f, t);
     return f;
   }
@@ -490,7 +492,7 @@
     else if (f.feverC && f.obContext) out.push({ level: 'amber', text: 'FEVER ≥38.0 °C: run the sepsis screen' + (f.postpartum && f.lowGradeFever ? '; low-grade, no red flags: look for the source' : '') });
     if (f.pphByQbl) out.push({ level: 'red', text: 'PPH (CMQCC Stage 1): QBL ' + f.qbl + ' mL ≥ ' + f.qblThreshold });
     if (f.qbl > 1500) out.push({ level: 'red', text: 'QBL >1500 mL: Stage 3 — OR, MTP 1:1:1 (PP-01 pearl)' });
-    if (f.abnormalVS && f.obContext) out.push({ level: 'amber', text: 'ABNORMAL VS (CMQCC): HR ≥110, BP ≤85/45, or SpO2 <95%' });
+    if (f.abnormalVS && f.obContext) out.push({ level: f.hr >= 110 ? 'red' : 'amber', text: 'ABNORMAL VS (CMQCC): HR ≥110, BP ≤85/45, or SpO2 <95%' });
     if (f.shockIndex >= 0.9 && f.obContext) out.push({ level: 'red', text: 'SHOCK INDEX ' + f.shockIndex + ' (≥0.9)' });
     if (f.hcgPositive && f.kw.unstable && !(f.ga >= 14)) out.push({ level: 'red', text: 'UNSTABLE + POSITIVE hCG → OPERATING ROOM, not another quantitative (GYN-01)' });
     if (f.kw.cat3) out.push({ level: 'red', text: 'CATEGORY III: resuscitate while you move toward delivery (LND-01)' });

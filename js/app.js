@@ -94,7 +94,7 @@
     const warns = E.privacyCheck(text);
     $('privacy-warn').hidden = !warns.length;
     $('privacy-warn').innerHTML = warns.length ? '<b>Check for identifiers:</b> ' + warns.map(esc).join(' ') + ' Remove them before continuing.' : '';
-    const r = E.triage(text, C, T, V, {redFlags:checklistAnswers, bp:readBP(), hr:readVital('hr'), spo2:readVital('spo2'), priorSafety:current && current.safety}); current = r;
+    const r = E.triage(text, C, T, V, {redFlags:checklistAnswers, bp:readBP(), hr:readVital('hr'), spo2:readVital('spo2'), language:readLanguage(), priorSafety:current && current.safety}); current = r;
     updateChecklistStatus(r.safety.checklist);
     renderBanner(r);
     renderHandoff(r.safety);
@@ -127,6 +127,7 @@
       esc(first ? first.text : !safety.dispositionBlocked ? 'Clinician review required; all-No is not clearance.' : 'Complete every checklist item before disposition. Activate rescue for any active emergency alert now.') +
       (!safety.checklist.bp.measured && safety.checklist.bp.mode !== 'legacy' ? '<p>' + esc(safety.checklist.bp.action) + ' — disposition remains held.</p>' : '') +
       (safety.checklist.vitals && safety.checklist.vitals.action ? '<p>' + esc(safety.checklist.vitals.action) + ' — disposition remains held.</p>' : '') +
+      (safety.checklist.languageAction ? '<p>' + esc(safety.checklist.languageAction) + ' — disposition remains held.</p>' : '') +
       '<p>' + esc(safety.operationalInstruction) + '</p>' +
       (safety.handoffRequired ? '<b>Unresolved concerns retained. Documented clinician reassessment/handoff required.</b>' : '') +
       (safety.alerts.length > 1 ? ' <b>' + safety.alerts.length + ' active assessment warnings.</b>' : '') +
@@ -207,8 +208,8 @@
   function updateChecklistStatus(c) {
     $('go').disabled = c.dispositionHeld;
     $('go').textContent = !c.dispositionHeld ? 'Review assessment / references' : 'Complete checklist before disposition';
-    const pendingVitals = (c.bpHold ? ['BP'] : []).concat(c.vitals && c.vitals.pending ? c.vitals.pending : []);
-    $('checklist-status').textContent = (c.bpHold || c.vitalsHold) && c.complete ? 'All checklist items answered. Obtain ' + pendingVitals.join(', ') + ' now — disposition held until measured.' : !c.dispositionHeld ? 'Checklist complete. Clinician determines disposition; all-No is not clearance.' : (E.redFlagItems.length - c.missing.length) + '/' + E.redFlagItems.length + ' completed — no disposition available. ' + (!c.bp.measured ? c.bp.action + '. ' : '') + (c.vitals && c.vitals.action ? c.vitals.action + '. ' : '') + 'Never delay rescue.';
+    const pendingVitals = (c.bpHold ? ['BP'] : []).concat(c.vitals && c.vitals.pending ? c.vitals.pending : []).concat(c.languageHold ? ['interpreter use'] : []);
+    $('checklist-status').textContent = (c.bpHold || c.vitalsHold || c.languageHold) && c.complete ? 'All checklist items answered. Obtain ' + pendingVitals.join(', ') + ' now — disposition held until measured.' : !c.dispositionHeld ? 'Checklist complete. Clinician determines disposition; all-No is not clearance.' : (E.redFlagItems.length - c.missing.length) + '/' + E.redFlagItems.length + ' completed — no disposition available. ' + (!c.bp.measured ? c.bp.action + '. ' : '') + (c.vitals && c.vitals.action ? c.vitals.action + '. ' : '') + 'Never delay rescue.';
   }
   function readBP() {
     if ($('bp-not-measured').checked) return 'not_measured';
@@ -221,6 +222,8 @@
     const v = $('vital-' + k).value;
     return v === '' ? 'not_measured' : Number(v);
   }
+  function readLanguage() { return {preferred:$('pref-language').value, interpreter:$('interpreter-used').value}; }
+  function resetLanguage() { $('pref-language').value = ''; $('interpreter-used').value = ''; }
   function resetVitals() { for (const k of ['hr', 'spo2']) { $(k + '-not-measured').checked = true; $('vital-' + k).value = ''; } }
   function bpEdited() { $('bp-not-measured').checked = false; run(); }
   function renderHandoff(s) {
@@ -228,7 +231,8 @@
     h.innerHTML = !s.handoffRequired ? '' : '<h3>Unresolved handoff and reassessment</h3><p>Reset did not resolve these alerts. An authorized clinician must document the original/corrected finding, repeat objective data or entry-error explanation, time, identity/role, rationale and acknowledgement in the approved clinical record. Transfer ongoing risks and obtain receiving-clinician acknowledgement. This de-identified reference tool does not authenticate clinicians, store PHI or replace that documentation; it cannot mark an alert resolved.</p><ul>' + s.handoffHistory.map(a => '<li>' + esc(a.text) + ' — unresolved</li>').join('') + '</ul>';
   }
   $('bp-not-measured').checked = true;
-  resetVitals();
+  resetVitals(); resetLanguage();
+  for (const k of ['pref-language', 'interpreter-used']) $(k).addEventListener('change', run);
   for (const k of ['hr', 'spo2']) { $('vital-' + k).addEventListener('input', () => { $(k + '-not-measured').checked = false; run(); }); $(k + '-not-measured').addEventListener('change', () => { if ($(k + '-not-measured').checked) $('vital-' + k).value = ''; run(); }); }
   $('bp-sbp').value = ''; $('bp-dbp').value = '';
   $('bp-sbp').addEventListener('input', bpEdited); $('bp-dbp').addEventListener('input', bpEdited);
@@ -245,7 +249,7 @@
     const prior = current && current.safety;
     if (prior && prior.alerts.length && !window.confirm('Start over while RETAINING all unresolved alerts? Documented authorized clinician reassessment is required in the approved clinical record; reset cannot resolve them.')) return;
     $('hpi').value = ''; current = prior && prior.alerts.length ? {safety:{...prior,handoffRequired:true}} : null;
-    checklistAnswers = {}; $('bp-not-measured').checked = true; $('bp-sbp').value = ''; $('bp-dbp').value = ''; resetVitals(); renderChecklist();
+    checklistAnswers = {}; $('bp-not-measured').checked = true; $('bp-sbp').value = ''; $('bp-dbp').value = ''; resetVitals(); resetLanguage(); renderChecklist();
     $('result').hidden = true; $('privacy-warn').hidden = true; run(); $('hpi').focus();
   };
   run();

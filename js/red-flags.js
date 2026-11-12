@@ -98,6 +98,9 @@
  }
  function combine(textSafety,legacyFlags,options={}){
   const checklist=evaluate(options.redFlags,options.bp,options.hr===undefined&&options.spo2===undefined?undefined:{hr:options.hr,spo2:options.spo2});
+  // B2: non-English preference without a recorded interpreter choice holds disposition (like an unmeasured vital); it never releases or lowers anything.
+  const lf=options.language;
+  if(lf&&typeof lf==='object'&&['es','other'].includes(lf.preferred)&&!['professional','family','none'].includes(lf.interpreter)){checklist.languageHold=true;checklist.dispositionHeld=true;checklist.languageAction='Record interpreter use (professional interpreter, family member, or none)';}
   // Text trauma that is immediate only because denials were not typed is resolved by structured checklist denials; text danger signs are never lowered.
   const textAlerts=textSafety.alerts.map(a=>a.id==='TRAUMA_IPV'&&a.traumaBasis==='unconfirmed'&&checklist.traumaDenied?{...a,urgency:'urgent',level:'amber',traumaBasis:'checklist-denied',text:'CLINICAL ASSESSMENT: Trauma/IPV with every danger item answered No on the checklist and a measured non-severe BP (Michael-approved policy): in-person assessment now; pregnancy trauma needs fetal monitoring per trauma content. Ask privately and nonjudgmentally; complete a safety assessment.'}:a);
   const current=[...textAlerts.map(a=>({...a,source:a.source||'text'})),...legacyFlags.map(a=>({...a,id:'LEGACY_'+a.text,source:'legacy-text',urgency:a.level==='red'?'immediate':'urgent'})),...checklist.alerts];
