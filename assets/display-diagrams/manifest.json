@@ -1,0 +1,106 @@
+[
+  {
+    "id": "FD-ANT-04",
+    "original": "assets/diagrams/ANT-04_SEVERE_BP_FLOW_v5_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-ANT-04.png",
+    "titleBandHeight": 129,
+    "bodySha256": "96bc4bf916579b408ffe3148d4e83b821c2800bddbb0813b65ca162449435582",
+    "originalSha256": "2a1de4de5d1e2b7d862fa3dec9186c91a778d8735aacc159fdf478cbf38f9b18"
+  },
+  {
+    "id": "FD-PP-01",
+    "original": "assets/diagrams/PP-01_PPH_FLOW_v3_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-PP-01.png",
+    "titleBandHeight": 129,
+    "bodySha256": "53a892ba9307e638dbfbe99f1579223b4614e0e2383cc8ccd3aec84d08d6ab84",
+    "originalSha256": "238d897ecde47a969f2052e8b74044e1d090e3fec67224e228a48bacd7e22b67"
+  },
+  {
+    "id": "FD-LND-01",
+    "original": "assets/diagrams/LND-01_CAT_II_FHR_FLOW_v3_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-LND-01.png",
+    "titleBandHeight": 129,
+    "bodySha256": "c40cb9086da610246e6ce26b6439846155f8cd3e507f55897219f8a3d03e9bc1",
+    "originalSha256": "97902a7e0ace6241e5adb98a5b2002357d4685bc0778ba66e82a11f89f1aabab"
+  },
+  {
+    "id": "FD-SYS-03",
+    "original": "assets/diagrams/SYS-03_MATERNAL_SEPSIS_FLOW_v3_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-SYS-03.png",
+    "titleBandHeight": 129,
+    "bodySha256": "8405425c29f0ad9ce3521f51a482c4b4f0af35369cf1c94b369bc7f73a043a5b",
+    "originalSha256": "397264526c5d996a3f1eb6efd28b4d30962ee7c19643e212d31954a1af2dcc2d"
+  },
+  {
+    "id": "FD-SYS-02",
+    "original": "assets/diagrams/SYS-02_VTE_POSTPARTUM_TREE_from_Haycock_CLEAN_2026-10-05_p2.png",
+    "output": "assets/display-diagrams/FD-SYS-02.png",
+    "titleBandHeight": 210,
+    "bodySha256": "c8f4ca4e4183b2a6c6549c3f00fd968a0c4eb76fe4fc6417de46724cc0e98402",
+    "originalSha256": "a7b9c88c50769f1b3dbd452995895260e0f72138fdadce7732fd20bb2486f2cd"
+  },
+  {
+    "id": "FD-LND-04",
+    "original": "assets/diagrams/LND-04_IAI_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-LND-04.png",
+    "titleBandHeight": 129,
+    "bodySha256": "3edc9928b309d6ddaf50ce23a53eaf5f7e68a1ff598921b7e6872d07786bc3cd",
+    "originalSha256": "2fa20f393652b34593ac3051d632c82f3cf8e727d64fe7e41630d9145143f2bd"
+  },
+  {
+    "id": "FD-GYN-01",
+    "original": "assets/diagrams/GYN-01_ECTOPIC_PUL_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-GYN-01.png",
+    "titleBandHeight": 129,
+    "bodySha256": "ea01ed39e0b4a93f0ef6142f9ae4370b0a1947349de020bde1871edb136f651b",
+    "originalSha256": "011726e8d4b82588631630ff725d87847c3cd372bf50bac1e021a16bba09848a"
+  },
+  {
+    "id": "FD-GYNB-02",
+    "original": "assets/diagrams/GYN-02_ACUTE_AUB_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-GYNB-02.png",
+    "titleBandHeight": 129,
+    "bodySha256": "15fffe48e44399cde45ed06a1eb3768a403d3e0a972d3550b2361181feef81b0",
+    "originalSha256": "8f1ac96abc840ceae65cbd59dc768538c2cbb30508c90a73b7885503475ed06e"
+  },
+  {
+    "id": "FD-GYNB-04",
+    "original": "assets/diagrams/GYN-04_ADNEXAL_TORSION_MASS_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-GYNB-04.png",
+    "titleBandHeight": 129,
+    "bodySha256": "10d19a8cbb6a3fe3a19486b78089dc509d6fddc23ea4c97c498b5bab23b55f82",
+    "originalSha256": "8cc047d1f6122bfaf06735a92454eceecf17ea976528f407e066b1b4d78ae601"
+  },
+  {
+    "id": "FD-LND-06",
+    "original": "assets/diagrams/LND-06_SHOULDER_DYSTOCIA_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-LND-06.png",
+    "titleBandHeight": 129,
+    "bodySha256": "55bce7458df8b4a8d50ca996cf944600d19212c45d0bb82dc06ac077c7e452eb",
+    "originalSha256": "d360569e893f152a6304a3d6241f6dfa2a315aa194950502da9e0157ccbecebd"
+  },
+  {
+    "id": "FD-ANT-01",
+    "original": "assets/diagrams/ANT-01_PROM_PPROM_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-ANT-01.png",
+    "titleBandHeight": 129,
+    "bodySha256": "2d4d882138666fd4fa853538122476ab1794760d4bc22d91388e3a3a60375f66",
+    "originalSha256": "67c82545b47127ba9d2952c0b3deabf04e8e503c73569b0559d52c82312fa7fc"
+  },
+  {
+    "id": "FD-ANT-07",
+    "original": "assets/diagrams/ANT-07_ACCRETA_FLOW_v2_2026-10-18.png",
+    "output": "assets/display-diagrams/FD-ANT-07.png",
+    "titleBandHeight": 129,
+    "bodySha256": "792c7634566307451cfe5a80127a2ddea1636882f5ea084fc78f03b38f466d6d",
+    "originalSha256": "8c5b15a3e9db3263ac24af2b4e58f6d7aaf7201499bb142ec0d09553c85389e9"
+  },
+  {
+    "id": "FD-ED-OB",
+    "original": "assets/diagrams/ED_TO_OB_PATHWAY_DECISION_TREE_v1_2026-10-14.png",
+    "output": "assets/display-diagrams/FD-ED-OB.png",
+    "titleBandHeight": 100,
+    "bodySha256": "e3b034409f85b9826b3b952e3ddc4d1b2b5613aa1e5423bc281491206e4a8306",
+    "originalSha256": "5a013974c1e12273bf6689cf02a06a982df7b7074ca8ec9d2e89d81e9b714a80"
+  }
+]
