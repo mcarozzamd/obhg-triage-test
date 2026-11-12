@@ -2,7 +2,8 @@
  * NC-*: 8 new protocol cards (Doc bypass verdict gap table). Body is English clinician content
  *       (Michael, Nov 12: all nurses read English); titles are bilingual (ES provisional).
  * EA-*: NB4 emergency action cards, bilingual (ES provisional, NB14), shown in the page language.
- * Doses: only doses already approved in this app (js/content.js FORMULARY) are printed; all others
+ * Doses: only doses already approved in this app (js/content.js FORMULARY) are printed, plus the epinephrine
+ * anaphylaxis dose Michael approved on Nov 12 (PROVISIONAL, pending CSM pharmacy sign-off); all others
  * say "per CSM pharmacy/order set". Sources: only guidelines verified by title/number on Nov 12 2026. */
 (function(root){
  'use strict';
@@ -22,9 +23,9 @@
      'Tocolysis may be considered by the provider for persistent FHR abnormalities while preparing for cesarean: agent and dose per CSM pharmacy/order set.',
      'None of these measures may delay birth.'])},
   'NC-ANAPH':{title:{en:'Anaphylaxis in pregnancy / postpartum',es:'Anafilaxia en el embarazo o posparto'},
-   sources:['Golden DBK et al. Anaphylaxis: A 2023 practice parameter update (AAAAI/ACAAI Joint Task Force on Practice Parameters). Ann Allergy Asthma Immunol 2024','ASCIA Guidelines: Acute Management of Anaphylaxis in Pregnancy (Australasian Society of Clinical Immunology and Allergy)'],
+   sources:['Golden DBK et al. Anaphylaxis: A 2023 practice parameter update (AAAAI/ACAAI Joint Task Force on Practice Parameters). Ann Allergy Asthma Immunol 2024','ASCIA Guidelines: Acute Management of Anaphylaxis in Pregnancy (Australasian Society of Clinical Immunology and Allergy)','Dribin TE et al. Anaphylaxis definition, overview, and clinical support tool: 2024 consensus report — a GA2LEN project. J Allergy Clin Immunol 2025'],
    html:sec('First actions',['Stop the suspected trigger (infusion, antibiotic, latex). Call for help: rapid response/code and the OB provider.',
-     '<b>Epinephrine IM, mid-outer thigh, FIRST.</b> Dose and repeat interval per CSM pharmacy/order set (an epinephrine dose is not yet approved in this app — Doc/pharmacy to confirm before go-live). Do not withhold or delay epinephrine because of pregnancy.',
+     '<b>Epinephrine IM FIRST: Epinephrine 0.5 mg IM (1 mg/mL), anterolateral thigh; may repeat every 5–15 min.</b> <span class="nf-provtag">PROVISIONAL, pending CSM pharmacy sign-off.</span> Do not withhold or delay epinephrine because of pregnancy.',
      'Airway and breathing: high-flow oxygen; prepare for airway support.',
      'Position: lie flat with legs raised if hypotensive (left lateral tilt if ≥20 wk); sitting if short of breath. Do not let her stand or walk.'])+
     sec('Then',['IV access; rapid isotonic fluid bolus if hypotensive — volume per order set.','Continuous maternal vitals and SpO2; continuous EFM if ≥20 wk once the mother is being resuscitated.',

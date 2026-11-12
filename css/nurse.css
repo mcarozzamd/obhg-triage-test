@@ -75,3 +75,4 @@
 .nf-bypass .nf-proto{min-height:36px}
 .nf-protohdr{position:static}
 .nf-protohdr .nf-warn{color:#ffeb3b;font-size:13px;margin:4px 0 0}
+.nf-provtag{display:inline-block;background:#6b4e00;color:#fff;border-radius:4px;padding:0 4px;font-weight:700}
