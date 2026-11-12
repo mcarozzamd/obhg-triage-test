@@ -1,4 +1,4 @@
-// TEST-SITE PREVIEW COPY of live candidate 760c641 (served from /live-preview/, scope /live-preview/).
+// TEST-SITE PREVIEW COPY of live commit 3ae4907 (served from /live-preview/, scope /live-preview/).
 // OBHG CLINICAL TRIAGE service worker. v25 (12 Nov 2026): adds the English-only nurse section (nurse.html) and keeps its navigation cache separate from index.html.
 // v24 (11 Nov 2026): precaches the plain-name diagram images the app shows; original diagram files are cached on first use.
 // Only deletes caches with its own prefix. Cache-first assets, network-first navigation. No network calls carry user input.
