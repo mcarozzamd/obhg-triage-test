@@ -13,6 +13,8 @@
  const P=' [ES provisional — pending bilingual clinician review]';
  // ---------- item catalog (existing items reuse js/red-flags.js labels/acuity/reasons) ----------
  const NEW={
+  collapse_maternal:{acuity:'immediate',en:'Patient not breathing, blue, unresponsive or pulseless',es:'La paciente no respira, está azulada, no responde o no tiene pulso',reason:'Activate the maternal code / resuscitation response immediately (left uterine displacement if ≥20 wk; perimortem cesarean per SYS-01); do not finish the form first.',signal:'COLLAPSE'},
+  collapse_baby:{acuity:'immediate',en:'Baby (newborn) not breathing, blue, limp or unresponsive',es:'El bebé (recién nacido) no respira, está azulado, flácido o no responde',reason:'Call the neonatal resuscitation (NRP) team immediately: warm, dry, stimulate; PPV if apneic or HR <100. Do not finish the form first.',signal:'COLLAPSE'},
   critical_shock:{acuity:'immediate',en:'Known critical vital/lab result or shock',es:'Signo vital o resultado de laboratorio crítico conocido, o choque (shock)',reason:'Immediate clinician/emergency assessment of the reported critical condition; this flow does not diagnose or treat it.',signal:'CRITICAL_CONDITION'},
   ipv_safety:{acuity:'immediate',en:'Afraid or not safe to go home, or partner controlling / won’t leave / answers for her',es:'Tiene miedo o no está segura de regresar a casa, o la pareja la controla, no se retira o contesta por ella',reason:'IMMEDIATE, with social work/advocate and safety planning now (ACOG CO 518). Ask alone, without the partner or family present; use a professional interpreter, never family.',signal:'IPV_SAFETY'},
   mech_crash:{acuity:'immediate',en:'Vehicle crash at ≥40 mph or on a highway',es:'Choque de vehículo a 40 mph (65 km/h) o más, o en carretera',reason:'High-risk trauma mechanism: immediate maternal/fetal assessment.',signal:'TRAUMA_MECHANISM'},
@@ -30,13 +32,13 @@
   hdr_T4:{acuity:'prompt',en:'Fever / chills / infection?',es:'¿Fiebre, escalofríos o infección?',header:'T4'},
  };
  const ITEMS={};
- for(const q of RF.items)if(q.id!=='severe_bp'&&q.id!=='critical_condition')ITEMS[q.id]={id:q.id,acuity:q.acuity,en:q.labels.en,es:q.labels.es,reason:q.reason,signal:q.signals[0]};
+ for(const q of RF.items)if(q.id!=='severe_bp'&&q.id!=='critical_condition'&&q.id!=='collapse_infant')ITEMS[q.id]={id:q.id,acuity:q.acuity,en:q.labels.en,es:q.labels.es,reason:q.reason,signal:q.signals[0]};
  for(const [id,v] of Object.entries(NEW))ITEMS[id]={id,...v};
  // Doc G8: uncertain intent = Unsure on harm_intent.
  ITEMS.harm_intent.hint={en:'Uncertain intent: answer Unsure here.',es:'Si la intención es incierta: responda No estoy segura aquí.'};
  Object.values(ITEMS).forEach(Object.freeze);Object.freeze(ITEMS);
  // ---------- structure ----------
- const GATE=Object.freeze(['collapse_infant','hemorrhage','seizure_ams','breathing_chest','stroke','cord_prolapse','birth_imminent','anaphylaxis','syncope','critical_shock']); // NF4: 10 tiles
+ const GATE=Object.freeze(['cord_prolapse','collapse_maternal','collapse_baby','birth_imminent','hemorrhage','seizure_ams','breathing_chest','stroke','anaphylaxis','syncope','critical_shock']); // NF4 10 tiles + NB11 collapse split = 11; NB12 order: cord prolapse, collapse, birth first
  const UNIVERSAL=Object.freeze(['headache_vision','sepsis','severe_abdominal','ectopic','fetal_movement']); // NF1/NF2
  const SAFETY=Object.freeze(['harm_intent','intrusive_thoughts','psychosis','trauma_ipv','ipv_safety']); // NF6/NF9 (+ privateScreen NF7)
  const MECH=Object.freeze(['mech_crash','mech_vehicle','mech_pedestrian','mech_abdomen','mech_penetrating','mech_strangulation','mech_sexual_assault','mech_intoxication']); // NF8 (+ fall/height)
@@ -47,12 +49,13 @@
   T4:Object.freeze({en:'Fever / infection / postpartum / other',es:'Fiebre / infección / posparto / otro',items:['fever','vaginal_bleeding','leg_clot'],shown:['sepsis']}),
  });
  // Trauma downgrade needs every one of these No (current TRAUMA_DANGER with critical_condition split per Doc ruling 5).
- const TRAUMA_DANGER=Object.freeze([...RF.TRAUMA_DANGER.filter(k=>k!=='critical_condition'),'critical_shock',...MECH,'ipv_safety']);
+ const TRAUMA_DANGER=Object.freeze([...RF.TRAUMA_DANGER.filter(k=>k!=='critical_condition'),'critical_shock',...MECH,'ipv_safety']); // collapse_* are gate items (lock EMERGENT)
  const ADDON_ITEMS=Object.freeze(['vaginal_bleeding','labor','membranes']);
  const STATUSES=Object.freeze(['unknown','lt20','ge20','postpartum']);
  const INTERPRETERS=Object.freeze(['professional','qualified_bilingual','family','none']);
  const TEXT_TREE={ROM:'T3',PRETERM_LABOR:'T3',FETAL_MOVEMENT:'T3',OB_BLEEDING:'T1',ABRUPTION:'T1',DVT_EVALUATION:'T2',POSTPARTUM_FEVER:'T4',FEVER_EVALUATION:'T4',UTI_EVALUATION:'T4'};
- function create(uiLang){return {uiLang:uiLang==='es'?'es':'en',answers:{},audit:{},blocked:[],bp:'not_measured',hr:'not_measured',spo2:'not_measured',patientLanguage:'',interpreter:'',status:'unknown',tree:null,addedTrees:[],fallHeight:undefined,privateScreen:'',text:''};}
+ const TREES_ITEMS_FROM=ts=>ts.flatMap(t=>TREES[t].items);
+ function create(uiLang){return {uiLang:uiLang==='es'?'es':'en',answers:{},audit:{},blocked:[],bp:'not_measured',hr:'not_measured',spo2:'not_measured',patientLanguage:'',interpreter:'',status:'unknown',tree:null,addedTrees:[],fallHeight:undefined,privateScreen:'',text:'',confirmed:{},deferred:{}};}
  // NF15: one stored answer per item; Yes/Unsure can never be lowered to No by re-answering anywhere.
  function setAnswer(s,id,v,via){
   if(!ITEMS[id]||!['yes','no','unsure'].includes(v))return {ok:false,reason:'invalid'};
@@ -95,12 +98,25 @@
   if(id==='labor'||id==='membranes')return st!=='postpartum';
   return true;
  }
- function parseVitals(s){
+ // NB9: physiologically implausible entries need one "confirm value" tap before they count (and can latch the lock).
+const PLAUS={hr:v=>v<30||v>200,spo2:v=>v<70,sbp:v=>v<50||v>250,dbp:v=>v>150};
+function implausible(s){
+ const out=[],c=s.confirmed||{};const chk=(k,v)=>{if(Number.isFinite(v)&&PLAUS[k](v)&&c[k]!==v)out.push({k,v});};
+ chk('hr',s.hr);chk('spo2',s.spo2);if(s.bp&&typeof s.bp==='object'){chk('sbp',s.bp.sbp);chk('dbp',s.bp.dbp);}
+ return out;
+}
+function effective(s){
+ const imp=implausible(s);if(!imp.length)return s;const e={...s};
+ for(const {k} of imp){if(k==='hr'||k==='spo2')e[k]='not_measured';else{const bp={...s.bp};delete bp[k];e.bp=Object.keys(bp).length?bp:'not_measured';}}
+ return e;
+}
+function parseVitals(s){
   const bp=RF.parseBP(s.bp==='not_measured'||s.bp===undefined?'not_measured':s.bp);
   const v=RF.parseVitals({hr:s.hr===undefined?'not_measured':s.hr,spo2:s.spo2===undefined?'not_measured':s.spo2});
   return {bp,v};
  }
- function evaluate(s,prior){
+ function evaluate(s0,prior){
+  const imp=implausible(s0),s=effective(s0);
   const T=textLayer(s),f=T.f,a=s.answers;
   const conflict=statusConflict(s,f);
   const st=conflict?'unknown':(STATUSES.includes(s.status)?s.status:'unknown'); // NF10/NF11
@@ -119,16 +135,24 @@
   const headerTrees=headers.filter(h=>pos(a[h])).map(h=>h.slice(4));
   for(const t of headerTrees)TREES[t].items.filter(vis).forEach(i=>req.add(i));
   const activeTrees=[...baseTrees,...headerTrees];
+  // ---------- bypass (Michael 12:54 PM CT Nov 12; Doc review pending) ----------
+  // Any positive Act-now item, positive IMMEDIATE universal emergency, or immediate measured vital locks EMERGENT
+  // (extends NF12 beyond the gate). The nurse can open the protocol and is not forced through more questions.
+  const {bp:bp0,v:v0}=parseVitals(s);
+  const vitalsImmediate=(bp0.valid&&bp0.measured&&bp0.severe)||(!bp0.valid&&bp0.severeEvidence)||(bp0.measured&&bp0.sbp<90)||(!bp0.measured&&bp0.evidence&&bp0.evidence.sbp<90)||v0.abnormal;
+  const bypassBy=[...GATE.filter(id=>pos(a[id])),...UNIVERSAL.filter(id=>pos(a[id])&&ITEMS[id].acuity==='immediate'&&vis(id)),...(vitalsImmediate?['vitals']:[])];
+  let lockedNow=bypassBy.length>0||!!(prior&&prior.locked);
   // ---------- item states ----------
   const states={};
-  for(const id of Object.keys(ITEMS)){
+  const deriveStates=()=>{for(const id of Object.keys(ITEMS)){
    if(a[id]!==undefined)states[id]=s.audit[id]==='group_no'&&a[id]==='no'?'group_no':a[id];
    else if(ITEMS[id].header&&!req.has(id))states[id]='na_header';
    else if(!vis(id))states[id]='na_status';
-   else if(req.has(id))states[id]=gateTapped?'not_assessed':'unanswered';
+   else if(req.has(id))states[id]=lockedNow?'not_assessed':'unanswered';
    else if(!traumaOn&&(MECH.includes(id)||id==='fall'))states[id]='na_trauma';
    else states[id]='not_asked';
-  }
+  }};
+  deriveStates();
   const answered=id=>a[id]!==undefined;
   const unanswered=[...req].filter(id=>!answered(id));
   // ---------- vitals (NF13) ----------
@@ -139,6 +163,7 @@
   const sbpLow=bp.measured&&bp.sbp<90||!bp.measured&&bp.evidence&&bp.evidence.sbp<90;
   if(sbpLow)add('RF_SBP_LOW','immediate','Measured SBP <90: possible shock. Immediate clinician assessment of stability now.');
   if(v.abnormal)add('RF_ABNORMAL_VITALS','immediate','Measured HR ≥110 or SpO2 <95% (CMQCC): immediate clinician assessment of stability now.');
+  if(imp.length)add('VITAL_CONFIRM','prompt','Implausible value entered ('+imp.map(x=>({hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'}[x.k])+' '+x.v).join(', ')+'): recheck, then tap “Confirm value” if correct. Not counted until confirmed; never delays other IMMEDIATE alerts.',{task:true});
   const vitalsHold=!(bp.mode==='measured'&&bp.valid)||!v.measured;
   const stable=bp.measured&&bp.valid&&!bp.severe&&bp.sbp>=90&&v.stable;
   // ---------- language / interpreter (NF14, NF17, NF18) ----------
@@ -190,6 +215,10 @@
   if(has('RF_MEMBRANES','ROM')&&has('RF_LABOR','PRETERM_LABOR')&&!all.has('RF_ROM_LABOR'))all.set('RF_ROM_LABOR',{id:'RF_ROM_LABOR',urgency:'immediate',level:'red',source:'nurse',signals:['OB_EMERGENCY'],text:'Membrane rupture with labor / contractions: immediate obstetric assessment; contact the obstetric team now.'});
   const out=[...all.values()].map(x=>x.urgency==='urgent'&&!String(x.text).startsWith(RF.URGENT_DEFINITION.en)?{...x,text:RF.URGENT_DEFINITION.en+' '+x.text}:x);
   const urgency=out.filter(x=>!x.task).reduce((u,x)=>max(u,x.urgency),'prompt');
+  // NB7: any IMMEDIATE alert from any source locks EMERGENT, except the alerts that await a structured trauma answer.
+  const lockAlerts=out.filter(x=>x.urgency==='immediate'&&!x.task&&x.id!=='RF_TRAUMA_DANGER'&&!(x.id==='TRAUMA_IPV'&&x.traumaBasis==='unconfirmed'));
+  for(const x of lockAlerts)if(!bypassBy.includes(x.itemId||x.id)&&!(x.itemId&&bypassBy.includes(x.itemId))&&!['RF_SEVERE_BP','RF_SBP_LOW','RF_ABNORMAL_VITALS'].includes(x.id))bypassBy.push(x.itemId||x.id);
+  if(lockAlerts.length&&!lockedNow){lockedNow=true;deriveStates();}
   // ---------- holds / disposition ----------
   const holds=[];
   if(!s.tree)holds.push('pick_complaint');
@@ -199,15 +228,43 @@
   if(interpreterMissing)holds.push('interpreter');
   if(!['yes','no','cannot_separate'].includes(s.privateScreen))holds.push('private_screen');
   if(conflict)holds.push('status_conflict');
-  const locked=gateTapped||(prior&&prior.locked); // NF12
+  const locked=lockedNow; // NF12 (+ bypass extension)
   const held=!locked&&holds.length>0;
   const lockedUrgency=locked?'immediate':urgency;
   const disposition=locked?'EMERGENT':held?null:(urgency==='immediate'?'EMERGENT':urgency==='urgent'?'URGENT':'PROMPT_CLINICIAN_REVIEW');
-  const followUp=locked?['Safety screen and vitals required before discharge/transfer']:[];
-  const r={version:1,uiLang:s.uiLang,status:st,statusChosen:s.status,statusConflict:conflict,gateTapped,locked:!!locked,urgency:lockedUrgency,disposition,held,holds,unanswered,states,requiredItems:[...req],activeTrees,headers,traumaOn,traumaDenied,downgradeLock,r5Lock,spanishPathLock,interpreterNeeded,privateEffective:privateEff,vitals:{bp,v,stable},alerts:out,tasks:out.filter(x=>x.task||x.urgency==='prompt'),followUp,facts:{ga:f.ga,postpartum:!!f.postpartum},blocked:[...s.blocked]};
+  const followUp=locked?['Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items']:[];
+  // ---------- sections / finish-screening reminders / discharge gate ----------
+  const ans=id=>a[id]!==undefined;
+  const remainingOf=ids=>ids.filter(id=>req.has(id)&&!ans(id));
+  const treeItems=[...new Set(activeTrees.flatMap(t=>TREES[t].items.filter(vis)))];
+  const sections=[
+   {id:'safety',remaining:[...remainingOf(SAFETY),...(['yes','no','cannot_separate'].includes(s.privateScreen)?[]:['private_screen'])]},
+   {id:'vitals',remaining:[...(bp.mode==='measured'&&bp.valid?[]:['bp']),...(Number.isFinite(v.hr)?[]:['hr']),...(Number.isFinite(v.spo2)?[]:['spo2']),...(languageMissing?['patient_language']:[]),...(interpreterMissing?['interpreter']:[])]},
+   {id:'gate',remaining:gateTapped?[]:remainingOf(GATE)},
+   {id:'universal',remaining:remainingOf(UNIVERSAL)},
+   {id:'complaint',remaining:[...(s.tree?[]:['pick_complaint']),...remainingOf(treeItems)]},
+   ...(traumaOn?[{id:'addon',remaining:remainingOf([...ADDON_ITEMS,...MECH,'fall'])}]:[]),
+   {id:'catch',remaining:remainingOf([...headers,'other_concern',...TREES_ITEMS_FROM(headerTrees)])},
+  ].map(x=>({...x,done:x.remaining.length===0,deferred:x.remaining.length&&s.deferred&&DEFER_REASONS.includes(s.deferred[x.id])?s.deferred[x.id]:null}));
+  if(conflict)sections.push({id:'status',remaining:['status_conflict'],done:false,deferred:null});
+  // NB5: discharge home / non-emergency transfer needs vitals, safety, other emergencies (incl. fetal movement), trauma add-on and no status conflict.
+  // NB8: a deferral never sets an answer and never opens this gate.
+  const GATE_SECTIONS=['vitals','safety','universal','addon','status'];
+  const dischargeOpen=sections.filter(x=>GATE_SECTIONS.includes(x.id)&&!x.done);
+  const dischargeBlocked=dischargeOpen.length>0;
+  const r={version:1,bypassBy,sections,dischargeBlocked,dischargeOpen:dischargeOpen.map(x=>x.id),implausible:imp,uiLang:s.uiLang,status:st,statusChosen:s.status,statusConflict:conflict,gateTapped,locked:!!locked,urgency:lockedUrgency,disposition,held,holds,unanswered,states,requiredItems:[...req],activeTrees,headers,traumaOn,traumaDenied,downgradeLock,r5Lock,spanishPathLock,interpreterNeeded,privateEffective:privateEff,vitals:{bp,v,stable},alerts:out,tasks:out.filter(x=>x.task||x.urgency==='prompt'),followUp,facts:{ga:f.ga,postpartum:!!f.postpartum},blocked:[...s.blocked]};
   r.sbar=sbar(s,r);
   return r;
  }
+ const SECTION_EN={safety:'Safety screen',vitals:'Vitals/language',gate:'Act now',universal:'Other emergencies',complaint:'Complaint questions',addon:'Trauma add-on',catch:'Anything else',status:'Pregnancy status conflict'};
+const DEFER_REASONS=Object.freeze(['unstable','transferred','declined','no_interpreter']);
+const DEFER_EN={unstable:'patient unstable/sedated',transferred:'transferred to higher care',declined:'patient declined',no_interpreter:'interpreter unavailable'};
+// NB8: documented deferral of an open section. Never sets any answer.
+function defer(s,section,reason){if(!DEFER_REASONS.includes(reason))return {ok:false,reason:'invalid'};s.deferred=s.deferred||{};s.deferred[section]=reason;return {ok:true};}
+// NB9: confirm a currently entered implausible vital.
+function confirmVital(s,k){const v=k==='sbp'||k==='dbp'?(s.bp&&s.bp[k]):s[k];if(!Number.isFinite(v))return {ok:false};s.confirmed=s.confirmed||{};s.confirmed[k]=v;return {ok:true};}
+const openList=r=>r.sections.filter(x=>!x.done).map(x=>SECTION_EN[x.id]+' ('+x.remaining.map(id=>ITEMS[id]?ITEMS[id].en:FIELD_EN[id]||id).join('; ')+')').join('; ');
+ const FIELD_EN={status_conflict:'free text conflicts with status',bp:'BP',hr:'HR',spo2:'SpO2',patient_language:'patient language',interpreter:'interpreter',private_screen:'screened privately',pick_complaint:'pick a complaint'};
  const label=id=>ITEMS[id]?ITEMS[id].en:id;
  // NF3/NF12/NF17: SBAR in English for the chart, listing positives, not asked, not assessed and N/A items by name.
  function sbar(s,r){
@@ -223,10 +280,11 @@
    'B: Status '+stat+(r.statusConflict?' (CONFLICT with free text; all items shown)':'')+'. Patient language '+lang+'; interpreter '+interp+'. App path '+(s.uiLang==='es'?'Spanish (provisional)':'English')+'.',
    'A: '+vit+'. Positive: '+(posIds.map(id=>label(id)+(r.states[id]==='unsure'?' (Unsure)':'')).join('; ')||'none')+'. Alerts: '+(r.alerts.filter(x=>!x.task).map(x=>x.id).join(', ')||'none')+'.',
    'R: '+(r.urgency==='immediate'?'Immediate clinician/team response now; never wait for form completion.':r.urgency==='urgent'?RF.URGENT_DEFINITION.en:'Accountable clinician review required; all-No is not clearance.')+(r.followUp.length?' '+r.followUp.join('. ')+'.':'')+(r.tasks.length?' Open tasks: '+r.tasks.map(x=>x.id).join(', ')+'.':''),
+   'Discharge home / non-emergency transfer: '+(r.dischargeBlocked?'BLOCKED until '+r.dischargeOpen.map(id=>SECTION_EN[id]).join(' + ')+' complete':'allowed by screening (vitals, safety screen, other emergencies'+(r.traumaOn?', trauma add-on':'')+' complete)')+'. Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.'+(r.locked?' Open screening at transfer: '+(openList(r)||'none')+'.':' Not yet screened: '+(openList(r)||'none')+'.')+(r.sections.some(x=>x.deferred)?' Deferred (open task): '+r.sections.filter(x=>x.deferred).map(x=>SECTION_EN[x.id]+' — reason: '+DEFER_EN[x.deferred]).join('; ')+'.':'')+(r.bypassBy.length?' Bypass to protocol triggered by: '+r.bypassBy.map(id=>ITEMS[id]?ITEMS[id].en:id==='vitals'?'measured vital sign':id).join('; ')+'.':'')+(r.implausible.length?' Unconfirmed implausible vitals: '+r.implausible.map(x=>x.k+' '+x.v).join(', ')+'.':''),
    'Not asked: '+(by('not_asked').map(label).join('; ')||'none')+'. Not assessed: '+(by('not_assessed').map(label).join('; ')||'none')+'. N/A by status: '+(by('na_status').map(label).join('; ')||'none')+'. Trauma add-on: '+(r.traumaOn?'asked':'not triggered')+'. Group No: '+(by('group_no').map(label).join('; ')||'none')+'.'
   ];
   return parts.join(' | ');
  }
- const api=Object.freeze({version:1,ITEMS,GATE,UNIVERSAL,SAFETY,MECH,TREES,TRAUMA_DANGER,ADDON_ITEMS,STATUSES,INTERPRETERS,create,setAnswer,groupNo,evaluate,sbar,visibleByStatus,PROVISIONAL:P});
+ const api=Object.freeze({version:1,SECTION_EN,FIELD_EN,DEFER_REASONS,DEFER_EN,defer,confirmVital,implausible,PLAUS,ITEMS,GATE,UNIVERSAL,SAFETY,MECH,TREES,TRAUMA_DANGER,ADDON_ITEMS,STATUSES,INTERPRETERS,create,setAnswer,groupNo,evaluate,sbar,visibleByStatus,PROVISIONAL:P});
  if(node)module.exports=api;else root.NurseFlow=api;
 })(typeof self!=='undefined'?self:this);

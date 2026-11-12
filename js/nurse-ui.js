@@ -3,7 +3,7 @@
  * Uses only getElementById / innerHTML / element listeners (no document-level listeners). */
 (function(root){
  'use strict';
- const N=root.NurseFlow;
+ const N=root.NurseFlow,PR=root.NurseProtocols,NC=root.NurseCards,D=root.DisplayNames,C=root.CONTENT;
  const esc=s=>String(s==null?'':s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
  const STR={
   en:{title:'Nurse triage (TEST)',test:'TEST / PRACTICE SITE: not for patient care. Do not enter real patient information.',back:'Back',next:'Next',yes:'Yes',no:'No',unsure:'Unsure',none:'None of these',noRest:'All others No',
@@ -24,7 +24,15 @@
    restartConfirm:'Start over while RETAINING all unresolved alerts? Documented clinician reassessment is required; reset cannot resolve them.',retained:'Retained from earlier in this assessment; clinician reassessment required.',
    immediate:'IMMEDIATE',urgent:'URGENT',prompt:'CLINICIAN REVIEW',EMERGENT:'EMERGENT',URGENT:'URGENT',PROMPT_CLINICIAN_REVIEW:'PROMPT CLINICIAN REVIEW',
    holds:{pick_complaint:'pick a complaint',unanswered:'unanswered questions',vitals:'BP, HR and SpO2',patient_language:'patient language',interpreter:'interpreter',private_screen:'private screening',status_conflict:'status conflict'},
-   followUp:'Safety screen and vitals required before discharge/transfer.',unsureYes:'Unsure counts as Yes.',
+   followUp:'Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.',unsureYes:'Unsure counts as Yes.',
+   sections:'Sections',sec:{gate:'Act now',vitals:'Vitals / language',status:'Status',universal:'Other emergencies',pick:'Complaint',tree:'Complaint questions',safety:'Safety screen',addon:'Trauma add-on',catch:'Anything else',result:'Result / SBAR',protocols:'Protocols'},
+   openProto:'Open protocol',noProto:'No protocol in this app',finish:'Finish screening (tap to return):',dischargeBlocked:'Discharge/transfer blocked until vitals + safety screen are complete.',dischargeOk:'Vitals + safety screen complete.',protoHdr:'Protocol (English clinician content)',protoBack:'Back to nurse triage',protoLib:'All protocols',allDone:'All sections screened.',
+   provBadge:'PROVISIONAL',emergencyCard:'Emergency action card',finishN:'Finish screening',
+   dischargeHome:'Discharge home / non-emergency transfer: BLOCKED until complete:',dischargeHomeOk:'Discharge home / non-emergency transfer: required screening complete.',
+   emergencyTransfer:'Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.',
+   defer:'Not completed…',deferred:'Not completed',deferWhy:'Reason (never records No; discharge stays blocked):',deferReason:{unstable:'Patient unstable/sedated',transferred:'Transferred to higher care',declined:'Patient declined',no_interpreter:'Interpreter unavailable'},
+   confirm:'Confirm value',implausible:'Implausible value: recheck. It counts only after you confirm.',vit:{hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'},
+   provCard:'PROVISIONAL card — pending Doc and Michael review. Not unit policy.',sources:'Sources',
    footer:'Decision support only · not unit policy · not the medical record · enter no PHI.'},
   es:{title:'Triaje de enfermería (PRUEBA)',test:'SITIO DE PRUEBA / PRÁCTICA: no es para la atención de pacientes. No ingrese información real de pacientes.',back:'Atrás',next:'Siguiente',yes:'Sí',no:'No',unsure:'No segura',none:'Ninguno de estos',noRest:'Todos los demás No',
    hpi:'Texto libre (opcional, en cualquier momento): solo puede aumentar la urgencia. Sin nombres, números de expediente ni fechas de nacimiento.',
@@ -44,12 +52,20 @@
    restartConfirm:'¿Empezar de nuevo CONSERVANDO todas las alertas sin resolver? Se requiere reevaluación clínica documentada; reiniciar no las resuelve.',retained:'Conservada de antes en esta evaluación; se requiere reevaluación clínica.',
    immediate:'INMEDIATA',urgent:'URGENTE',prompt:'REVISIÓN CLÍNICA',EMERGENT:'EMERGENTE',URGENT:'URGENTE',PROMPT_CLINICIAN_REVIEW:'REVISIÓN CLÍNICA PRONTA',
    holds:{pick_complaint:'elegir un motivo',unanswered:'preguntas sin responder',vitals:'PA, FC y SpO2',patient_language:'idioma de la paciente',interpreter:'intérprete',private_screen:'evaluación en privado',status_conflict:'conflicto de estado'},
-   followUp:'Se requieren la evaluación de seguridad y los signos vitales antes del alta o traslado.',unsureYes:'No estoy segura cuenta como Sí.',
+   followUp:'Traslado de emergencia a L&D, quirófano, UCI o urgencias: nunca lo retrase; entregue los puntos de evaluación pendientes.',unsureYes:'No estoy segura cuenta como Sí.',
+   sections:'Secciones',sec:{gate:'Actuar ya',vitals:'Signos vitales / idioma',status:'Estado',universal:'Otras emergencias',pick:'Motivo',tree:'Preguntas del motivo',safety:'Evaluación de seguridad',addon:'Complemento de trauma',catch:'Algo más',result:'Resultado / SBAR',protocols:'Protocolos'},
+   openProto:'Abrir protocolo (en inglés)',noProto:'No hay protocolo en esta aplicación',finish:'Termine la evaluación (toque para volver):',dischargeBlocked:'Alta o traslado bloqueados hasta completar signos vitales y evaluación de seguridad.',dischargeOk:'Signos vitales y evaluación de seguridad completos.',protoHdr:'Protocolo (en inglés)',protoBack:'Volver al triaje de enfermería',protoLib:'Todos los protocolos',allDone:'Todas las secciones evaluadas.',
+   provBadge:'PROVISIONAL',emergencyCard:'Tarjeta de acción de emergencia',finishN:'Termine la evaluación',
+   dischargeHome:'Alta a casa o traslado no urgente: BLOQUEADOS hasta completar:',dischargeHomeOk:'Alta a casa o traslado no urgente: evaluación requerida completa.',
+   emergencyTransfer:'Traslado de emergencia a L&D, quirófano, UCI o urgencias: nunca lo retrase; entregue los puntos de evaluación pendientes.',
+   defer:'No completado…',deferred:'No completado',deferWhy:'Motivo (nunca registra No; el alta sigue bloqueada):',deferReason:{unstable:'Paciente inestable o sedada',transferred:'Trasladada a mayor nivel de atención',declined:'La paciente se negó',no_interpreter:'Intérprete no disponible'},
+   confirm:'Confirmar valor',implausible:'Valor poco probable: vuelva a medir. Solo cuenta después de confirmarlo.',vit:{hr:'FC',spo2:'SpO2',sbp:'Sistólica',dbp:'Diastólica'},
+   provCard:'Tarjeta PROVISIONAL — pendiente de revisión por Doc y Michael. No es política de la unidad.',sources:'Fuentes',
    footer:'Solo apoyo a la decisión · no es política de la unidad · no es el expediente médico · no ingrese información de salud protegida.',
    provisional:'Traducción provisional: pendiente de revisión por un clínico bilingüe calificado.'}
  };
  // Localized alert names (ES provisional). EN shows full engine text.
- const ALERT_ES={RF_SEVERE_BP:'Presión arterial grave (sistólica ≥160 o diastólica ≥110): evaluación clínica inmediata.',RF_SBP_LOW:'Sistólica <90: posible choque. Evaluación inmediata.',RF_ABNORMAL_VITALS:'FC ≥110 o SpO2 <95 %: evaluación inmediata de estabilidad.',RF_FALL_HIGH:'Caída de más de 10 pies o altura desconocida: evaluación inmediata.',FALL_HEIGHT_REQUIRED:'Paso requerido: anote la altura de la caída.',IPV_SAFETY:'Seguridad: no se puede separar o no está segura: INMEDIATA, con trabajo social.',PARTNER_RESCREEN:'Tarea: no evaluada en privado. Sepárela y vuelva a preguntar en privado con intérprete profesional.',RF_TRAUMA_DANGER:'Trauma sin todos los peligros descartados, sin evaluación privada o con bloqueo de idioma: INMEDIATA.',TRAUMA_WORKUP:'Trauma estable: seguir el estudio de trauma (monitoreo fetal ≥4 h si ≥20 semanas, Rh, Kleihauer-Betke).',RF_INTERPRETER_SI:'Pensamientos suicidas pasivos o intrusivos con bloqueo de idioma: INMEDIATA hasta evaluar con intérprete profesional.',RF_PUL_LOCK:'Embarazo de ubicación desconocida con bloqueo de idioma: evaluación inmediata.',TEXT_ABNORMAL_VITALS:'El texto libre indica signos vitales anormales: evaluación inmediata de estabilidad.',RF_ROM_LABOR:'Ruptura de membranas con trabajo de parto: evaluación obstétrica inmediata.'};
+ const ALERT_ES={RF_SEVERE_BP:'Presión arterial grave (sistólica ≥160 o diastólica ≥110): evaluación clínica inmediata.',RF_SBP_LOW:'Sistólica <90: posible choque. Evaluación inmediata.',RF_ABNORMAL_VITALS:'FC ≥110 o SpO2 <95 %: evaluación inmediata de estabilidad.',RF_FALL_HIGH:'Caída de más de 10 pies o altura desconocida: evaluación inmediata.',FALL_HEIGHT_REQUIRED:'Paso requerido: anote la altura de la caída.',IPV_SAFETY:'Seguridad: no se puede separar o no está segura: INMEDIATA, con trabajo social.',PARTNER_RESCREEN:'Tarea: no evaluada en privado. Sepárela y vuelva a preguntar en privado con intérprete profesional.',RF_TRAUMA_DANGER:'Trauma sin todos los peligros descartados, sin evaluación privada o con bloqueo de idioma: INMEDIATA.',TRAUMA_WORKUP:'Trauma estable: seguir el estudio de trauma (monitoreo fetal ≥4 h si ≥20 semanas, Rh, Kleihauer-Betke).',RF_INTERPRETER_SI:'Pensamientos suicidas pasivos o intrusivos con bloqueo de idioma: INMEDIATA hasta evaluar con intérprete profesional.',RF_PUL_LOCK:'Embarazo de ubicación desconocida con bloqueo de idioma: evaluación inmediata.',TEXT_ABNORMAL_VITALS:'El texto libre indica signos vitales anormales: evaluación inmediata de estabilidad.',VITAL_CONFIRM:'Valor de signo vital poco probable: vuelva a medir y confirme. No cuenta hasta confirmarlo.',RF_ROM_LABOR:'Ruptura de membranas con trabajo de parto: evaluación obstétrica inmediata.'};
  const T=lang=>STR[lang]||STR.en;
  const itemLabel=(id,lang)=>N.ITEMS[id][lang==='es'?'es':'en'];
  // ---------- pure renderers (testable in Node) ----------
@@ -69,7 +85,8 @@
   list.push('catch','result');return list;
  }
  function nmHTML(s,L){return btn('nm','bp','1',L.nm+' ('+L.sbp+'/'+L.dbp+')',s.bp==='not_measured')+btn('nm','hr','1',L.nm+' ('+L.hr+')',s.hr==='not_measured')+btn('nm','spo2','1',L.nm+' (SpO2)',s.spo2==='not_measured');}
- function visible(s,r,ids){return ids.filter(id=>r.states[id]!=='na_status');}
+ function cfHTML(r,L){return (r.implausible||[]).map(x=>'<p class="nf-warn">'+esc(L.implausible)+'</p>'+btn('confirm',x.k,'1',L.confirm+': '+L.vit[x.k]+' '+x.v)).join('');}
+function visible(s,r,ids){return ids.filter(id=>r.states[id]!=='na_status');}
  function screenHTML(s,r,screen,lang){
   const L=T(lang);let h='';
   if(screen==='gate'){
@@ -78,7 +95,7 @@
   }else if(screen==='vitals'){
    const f=(k,lab,val)=>'<label class="nf-num">'+esc(lab)+'<input id="nf-'+k+'" data-num="'+k+'" type="number" inputmode="numeric" value="'+(Number.isFinite(val)?val:'')+'"></label>';
    const bp=s.bp&&typeof s.bp==='object'?s.bp:{};
-   h+='<h2>'+esc(L.vitals)+'</h2><div class="nf-vitals">'+f('sbp',L.sbp,bp.sbp)+f('dbp',L.dbp,bp.dbp)+f('hr',L.hr,s.hr)+f('spo2',L.spo2,s.spo2)+'</div><div id="nf-nm">'+nmHTML(s,L)+'</div><p class="nf-hint">'+esc(L.nmHold)+'</p>'+
+   h+='<h2>'+esc(L.vitals)+'</h2><div class="nf-vitals">'+f('sbp',L.sbp,bp.sbp)+f('dbp',L.dbp,bp.dbp)+f('hr',L.hr,s.hr)+f('spo2',L.spo2,s.spo2)+'</div><div id="nf-nm">'+nmHTML(s,L)+'</div><div id="nf-cf">'+cfHTML(r,L)+'</div><p class="nf-hint">'+esc(L.nmHold)+'</p>'+
     '<h3>'+esc(L.plang)+'</h3>'+[['en',L.pen],['es',L.pes],['other',L.pother]].map(([v,t])=>btn('plang','',v,t,s.patientLanguage===v)).join('');
    if(r.interpreterNeeded)h+='<h3>'+esc(L.interp)+'</h3>'+[['professional',L.ipro],['qualified_bilingual',L.iqb],['family',L.ifam],['none',L.inone]].map(([v,t])=>btn('interp','',v,t,s.interpreter===v)).join('')+'<p class="nf-hint">'+esc(L.interpNote)+'</p>';
   }else if(screen==='status'){
@@ -107,10 +124,12 @@
    const ids=[...r.headers,'other_concern'];h+='<h2>'+esc(L.catch)+'</h2>'+ids.map(id=>row(s,r,id,lang,'catch')).join('')+groupBtn(s,ids,lang);
    const extra=r.requiredItems.filter(id=>!N.ITEMS[id].header&&!N.GATE.includes(id)&&!N.UNIVERSAL.includes(id)&&!N.SAFETY.includes(id)&&!N.MECH.includes(id)&&id!=='fall'&&id!=='other_concern'&&r.activeTrees.some(t=>N.TREES[t].items.includes(id))&&!(s.tree&&N.TREES[s.tree].items.includes(id)));
    if(extra.length)h+='<h3>'+esc(L.added)+'</h3>'+extra.map(id=>row(s,r,id,lang,'catch')).join('')+groupBtn(s,extra.filter(id=>!(s.answers[id]!==undefined&&s.where[id]!=='catch')),lang);
+  }else if(screen==='protocols'){
+   h+=protocolsScreenHTML(lang,r);
   }else if(screen==='result'){
    const names=k=>Object.keys(r.states).filter(id=>r.states[id]===k&&!N.ITEMS[id].header).map(id=>itemLabel(id,lang));
    h+='<h2>'+esc(L.result)+'</h2><p class="nf-acuity" data-urgency="'+r.urgency+'"><b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b> · '+esc(L.disp)+': '+esc(r.disposition?L[r.disposition]:L.held+' '+r.holds.map(x=>L.holds[x]).join(', '))+'</p>';
-   if(r.followUp.length)h+='<p class="nf-warn">'+esc(L.followUp)+'</p>';
+   h+=dischargeHTML(r,lang);
    h+='<h3>'+esc(L.alerts)+'</h3><ul>'+r.alerts.filter(x=>!x.task&&x.id!=='PARTNER_RESCREEN').map(x=>'<li class="'+(x.level==='red'?'nf-red':'nf-amber')+'">'+esc(alertText(x,lang))+(x.retained?' — '+esc(L.retained):'')+'</li>').join('')+'</ul>';
    const tasks=r.alerts.filter(x=>x.task||x.id==='PARTNER_RESCREEN'||x.id==='FALL_HEIGHT_REQUIRED');
    if(tasks.length)h+='<h3>'+esc(L.tasks)+'</h3><ul>'+tasks.map(x=>'<li>'+esc(alertText(x,lang))+'</li>').join('')+'</ul>';
@@ -125,27 +144,88 @@
   if(x.itemId&&N.ITEMS[x.itemId])return N.ITEMS[x.itemId].es+' — '+L[x.urgency==='prompt'?'prompt':x.urgency];
   return ALERT_ES[x.id]||('Alerta adicional del texto libre — '+L[x.urgency==='prompt'?'prompt':x.urgency]);
  }
- function bannerHTML(r,lang){const L=T(lang);return '<b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b>'+(r.disposition?' · '+esc(L[r.disposition]):'')+(r.statusConflict?'<p>'+esc(L.conflict)+'</p>':'')+(r.gateTapped?'<p>'+esc(L.gateHit)+'</p>':'');}
- function navHTML(s,r,screen,lang){const L=T(lang),list=screens(s,r),i=list.indexOf(screen);return (i>0?btn('nav','','-1',L.back):'')+(i<list.length-1?btn('nav','','1',L.next):'');}
+ const SEC_SCREEN={gate:'gate',vitals:'vitals',universal:'universal',complaint:'tree',safety:'safety',addon:'addon',catch:'catch',status:'status'};
+const secName=(L,id)=>L.sec[id==='complaint'?'tree':id];
+function protoName(id,lang){return PR&&PR.NAMES[id]?PR.NAMES[id][lang==='es'?'es':'en']:id;}
+const isNew=id=>/^(NC|EA)-/.test(id);
+function linkBtn(x,t,lang,compact){
+ const L=T(lang),l=lang==='es'?'es':'en';const cond=x.cond&&PR.COND[x.cond]?' ('+PR.COND[x.cond][l]+')':'';const stl=PR.STATUS_LBL[t.status]?' · '+PR.STATUS_LBL[t.status][l]:'';
+ const lbl=L.openProto;
+ return '<button type="button" class="nf-proto'+(/^EA-/.test(x.id)?' nf-ea':'')+'" data-act="proto" data-val="'+esc(x.id)+'" data-key="'+esc(t.key)+'">'+(/^EA-/.test(x.id)?'':esc(lbl)+': ')+esc(protoName(x.id,lang))+esc(cond)+(compact?'':esc(stl))+(/^NC-/.test(x.id)?' <span class="nf-badge">'+esc(L.provBadge)+'</span>':'')+'</button>';
+}
+// NB3: gap/partial notes always render next to their buttons; NB4: every trigger has a card (no dead end).
+function noteHTML(t,lang){return t.note&&t.level!=='mapped'&&t.level!=='card'?'<span class="nf-gap" data-gap="'+esc(t.key)+'" title="'+esc(t.note[lang==='es'?'es':'en'])+'">'+esc(t.note[lang==='es'?'es':'en'])+'</span>':'';}
+function protoButtons(r,lang,all){
+ if(!PR)return '';const L=T(lang),list=PR.forResult(r);if(!list.length)return '';
+ if(all)return '<div class="nf-bypass nf-bypass-all">'+list.map(t=>'<div class="nf-trig" data-trig="'+esc(t.key)+'"><b>'+esc(N.ITEMS[t.key]?N.ITEMS[t.key][lang==='es'?'es':'en']:protoName(t.ids[0],lang))+'</b>'+t.links.map(x=>linkBtn(x,t,lang,false)).join('')+noteHTML(t,lang)+(t.level==='card'&&t.note?'<span class="nf-hint">'+esc(t.note[lang==='es'?'es':'en'])+'</span>':'')+'</div>').join('')+'</div>';
+ return '<div class="nf-bypass">'+linkBtn(list[0].links[0],list[0],lang,true)+noteHTML(list[0],lang)+'</div>';
+}
+// NB12 footer row: other gap/card triggers as compact card chips (never only behind +N; gap note in label/tooltip), then +N, then Finish screening.
+function pinFootHTML(r,lang,remindOpen){
+ const L=T(lang),l=lang==='es'?'es':'en';const list=PR?PR.forResult(r):[];
+ const extra=list.slice(1).filter(t=>t.level==='gap'||t.level==='card');
+ const more=list.reduce((n,t)=>n+t.links.length,0)-1-extra.length;
+ const chips=extra.map(t=>{const id=t.links[0].id,nt=t.note&&t.level==='gap'?t.note[l]:'';return '<button type="button" class="nf-chip nf-proto2'+(/^EA-/.test(id)?' nf-ea':'')+'" data-act="proto" data-val="'+esc(id)+'" data-key="'+esc(t.key)+'"'+(nt?' data-gap="'+esc(t.key)+'" title="'+esc(nt)+'" aria-label="'+esc(protoName(id,lang)+'. '+nt)+'"':'')+'>'+esc(protoName(id,lang).replace(/ \((provisional card|tarjeta provisional)\)$/,''))+'</button>';}).join('');
+ const rem=reminderChip(r,lang,remindOpen);
+ const moreB=more>0?'<button type="button" class="nf-chip" data-act="go" data-val="protocols">+'+more+' · '+esc(L.sec.protocols)+'</button>':'';
+ return chips||rem||moreB?'<div class="nf-pinfoot">'+chips+moreB+rem+'</div>':'';
+}
+function dischargeHTML(r,lang){const L=T(lang);return '<p class="nf-'+(r.dischargeBlocked?'warn':'hint')+'" data-discharge="1">'+esc(r.dischargeBlocked?L.dischargeHome+' '+r.dischargeOpen.map(id=>secName(L,id)).join(', '):L.dischargeHomeOk)+'</p><p class="nf-hint" data-etransfer="1">'+esc(L.emergencyTransfer)+'</p>';}
+function reminderChip(r,lang,open){
+ const L=T(lang);if(!(r.locked||r.urgency==='immediate'))return '';
+ const sec=r.sections.filter(x=>!x.done);
+ if(!sec.length)return '<span class="nf-remind" data-remind="1"><b>'+esc(L.allDone)+'</b></span>';
+ return '<button type="button" class="nf-chip nf-finish" data-remind="1" data-act="remind" aria-expanded="'+(!!open)+'">'+esc(L.finishN)+' ('+sec.length+')'+(open?' ▴':' ▾')+'</button>';
+}
+// Expanded finish-screening panel (only when opened from the chip).
+function reminderHTML(r,lang,open,deferOpen){
+ const L=T(lang);if(!(r.locked||r.urgency==='immediate')||!open)return '';
+ const sec=r.sections.filter(x=>!x.done);if(!sec.length)return '';
+ const rows=sec.map(x=>'<div class="nf-secrow"><button type="button" class="nf-chip" data-act="go" data-val="'+SEC_SCREEN[x.id]+'" data-sec="'+x.id+'">'+esc(secName(L,x.id))+' ('+x.remaining.length+')</button>'+(x.deferred?'<span class="nf-hint" data-deferred="'+x.id+'">'+esc(L.deferred)+': '+esc(L.deferReason[x.deferred])+'</span>':btn('deferopen','',x.id,L.defer,deferOpen===x.id))+(deferOpen===x.id&&!x.deferred?'<div class="nf-defer"><span class="nf-hint">'+esc(L.deferWhy)+'</span>'+N.DEFER_REASONS.map(k=>btn('defer',x.id,k,L.deferReason[k])).join('')+'</div>':'')+'</div>').join('');
+ return '<div class="nf-remind nf-remind-open"><div class="nf-chips">'+rows+'</div>'+dischargeHTML(r,lang)+'</div>';
+}
+function quickNavHTML(s,r,lang,open){
+ const L=T(lang);const items=['gate','vitals','status','universal','pick','tree','safety',...(r.traumaOn?['addon']:[]),'catch','result','protocols'];
+ const secFor={gate:'gate',vitals:'vitals',universal:'universal',tree:'complaint',safety:'safety',addon:'addon',catch:'catch'};
+ const mark=k=>{const sec=r.sections.find(x=>x.id===secFor[k]);return sec?(sec.done?' ✓':' ('+sec.remaining.length+')'):'';};
+ const remaining=r.sections.filter(x=>!x.done).length;
+ return {btn:'<button type="button" class="nf-secbtn" data-act="qnav" aria-expanded="'+(!!open)+'">'+esc(L.sections)+(remaining?' ('+remaining+')':'')+(open?' ▴':' ▾')+'</button>',panel:open?'<div class="nf-qnav">'+items.map(k=>btn('go','',k,L.sec[k]+mark(k))).join('')+'</div>':''};
+}
+function pinnedHTML(s,r,lang,open,remindOpen,deferOpen){const q=quickNavHTML(s,r,lang,open);return '<div class="nf-pinrow">'+bannerHTML(r,lang)+q.btn+'</div>'+q.panel+protoButtons(r,lang)+pinFootHTML(r,lang,remindOpen)+reminderHTML(r,lang,remindOpen,deferOpen);}
+function protocolsScreenHTML(lang,r){const L=T(lang);return (r?protoButtons(r,lang,true)+(r.locked||r.urgency==='immediate'?dischargeHTML(r,lang):''):'')+'<h2>'+esc(L.protoLib)+'</h2>'+(PR?PR.LIBRARY.map(id=>'<button type="button" class="nf-big" data-act="proto" data-val="'+esc(id)+'">'+esc(protoName(id,lang))+'</button>').join(''):'');}
+// Protocol view: header in the page language; body is the existing English clinician content (lang="en").
+ function protocolHTML(id,lang){
+  const L=T(lang),l=lang==='es'?'es':'en';
+  const close=btn('protoclose','','1',L.protoBack);
+  if(NC&&NC.ACTION[id]){const a=NC.ACTION[id];return '<div class="nf-protohdr"><b>'+esc(L.emergencyCard)+'</b> '+close+'</div><div class="nf-protobody nf-eacard" lang="'+l+'" data-card="'+esc(id)+'"><h2>'+esc(a.title[l])+'</h2><ul>'+NC.actionLines(id,l).map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul><p class="nf-warn">'+esc(L.provCard)+'</p></div>';}
+  if(NC&&NC.CARDS[id]){const c=NC.CARDS[id];return '<div class="nf-protohdr"><b>'+esc(L.protoHdr)+'</b>: '+esc(protoName(id,lang))+' '+close+'<p class="nf-warn">'+esc(L.provCard)+'</p></div><div class="nf-protobody" lang="en" data-card="'+esc(id)+'"><h2>'+esc(c.title.en)+'</h2><p class="nf-warn"><b>'+esc(NC.PROV_EN)+'</b></p><div class="cardtext">'+c.html+'</div><h3>Sources</h3><ul>'+c.sources.map(x=>'<li>'+esc(x)+'</li>').join('')+'</ul></div>';}
+  const it=C&&C.items.find(x=>x.id===id);if(!it)return '';
+  const card=it.kind==='diagram'&&it.card?C.items.find(x=>x.id===it.card):null;
+  const body=(it.kind==='diagram'?'<a href="'+esc(D.image(it))+'" target="_blank" rel="noopener"><img class="diag" src="'+esc(D.image(it))+'" alt="'+esc(D.title(it))+'"></a>':'')+'<div class="cardtext">'+D.html(it)+'</div>'+(card?'<div class="cardtext">'+D.html(card)+'</div>':'');
+  return '<div class="nf-protohdr"><b>'+esc(L.protoHdr)+'</b>: '+esc(protoName(id,lang))+' '+btn('protoclose','','1',L.protoBack)+'</div><div class="nf-protobody" lang="en"><h2>'+esc(D.title(it))+'</h2>'+body+'</div>';
+ }
+ function bannerHTML(r,lang){const L=T(lang);return '<span class="nf-acu">'+(r.locked?'<b>'+esc(L[r.urgency])+'</b> · <span class="nf-hit">'+esc(L.gateHit)+'</span>':'<b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b>'+(r.disposition?' · '+esc(L[r.disposition]):''))+'</span>'+(r.statusConflict?'<p>'+esc(L.conflict)+'</p>':'');}
+ function navHTML(s,r,screen,lang){const L=T(lang),list=screens(s,r),i=list.indexOf(screen);if(i<0)return btn('go','','result',L.sec.result);return (i>0?btn('nav','','-1',L.back):'')+(i<list.length-1?btn('nav','','1',L.next):'');}
  function pageStrings(lang){return T(lang);}
- const api={STR,ALERT_ES,screens,screenHTML,bannerHTML,navHTML,alertText,pageStrings};
+ const api={STR,ALERT_ES,screens,screenHTML,bannerHTML,navHTML,alertText,pageStrings,pinnedHTML,protocolHTML,protoButtons,reminderHTML,reminderChip,pinFootHTML,quickNavHTML,dischargeHTML,cfHTML};
  root.NurseUI=api;
  // ---------- controller (browser) ----------
  const doc=root.document;if(!doc||!doc.getElementById||!doc.getElementById('nurse-app'))return;
  const $=id=>doc.getElementById(id);
- let s=null,r=null,screen='lang',prior=null;
- function start(lang){s=N.create(lang);s.where={};s.noFit={};screen='gate';const L=T(lang);
+ let s=null,r=null,screen='lang',prior=null,qnav=false,proto=null,remindOpen=false,deferOpen=null;
+ function start(lang){qnav=false;proto=null;remindOpen=false;deferOpen=null;s=N.create(lang);s.where={};s.noFit={};screen='gate';const L=T(lang);
   if(doc.documentElement)doc.documentElement.lang=lang;doc.title=L.title;$('nurse-title').textContent=L.title;$('nurse-test').textContent=L.test;$('nurse-hpi-label').textContent=L.hpi;$('nurse-footer').textContent=L.footer;$('nurse-prov').textContent=lang==='es'?STR.es.provisional:'';$('nurse-prov').hidden=lang!=='es';
   $('nurse-lang').hidden=true;$('nurse-main').hidden=false;$('nurse-hpi').value='';render();}
  function render(){r=N.evaluate(s,prior);prior=r.locked?r:{alerts:r.alerts,locked:false};
-  const list=screens(s,r);if(!list.includes(screen))screen='catch';
-  $('nurse-banner').innerHTML=bannerHTML(r,s.uiLang);$('nurse-banner').setAttribute('data-urgency',r.urgency);
+  const list=screens(s,r);if(!list.includes(screen)&&screen!=='protocols')screen='catch';
+  $('nurse-banner').innerHTML=pinnedHTML(s,r,s.uiLang,qnav,remindOpen,deferOpen);$('nurse-banner').setAttribute('data-urgency',r.urgency);
+  $('nurse-protocol').hidden=!proto;$('nurse-flowview').hidden=!!proto;$('nurse-protocol').innerHTML=proto?protocolHTML(proto,s.uiLang):'';
   s.curScreen=screen;$('nurse-screen').innerHTML=screenHTML(s,r,screen,s.uiLang);if($('nurse-screen').setAttribute)$('nurse-screen').setAttribute('class','box nf-s-'+screen+(['gate','universal','tree','catch'].includes(screen)?' nf-compact':''));$('nurse-nav').innerHTML=navHTML(s,r,screen,s.uiLang);api.last={s,r,screen};fitCheck();}
  // Doc ruling 7: group None only when every item and the button are visible without scrolling; otherwise per-item No.
  function fitCheck(){const sc=$('nurse-screen'),b=$('nurse-banner');if(!sc.getBoundingClientRect||!sc.querySelector||s.noFit[screen]!==undefined)return;const n=sc.querySelector('[data-act=none]');if(!n)return;
   const span=n.getBoundingClientRect().bottom-sc.getBoundingClientRect().top,ban=b.getBoundingClientRect?b.getBoundingClientRect().height:0;
   s.noFit[screen]=span+ban>(root.innerHeight||0);if(s.noFit[screen])render();}
- function go(to){screen=to;render();if($('nurse-screen').scrollIntoView)$('nurse-screen').scrollIntoView({block:'start'});}
+ function go(to){proto=null;screen=to;render();if($('nurse-screen').scrollIntoView)$('nurse-screen').scrollIntoView({block:'start'});}
  function step(d){const list=screens(s,r);const i=Math.max(0,list.indexOf(screen)+d);go(list[Math.min(i,list.length-1)]);}
  function onClick(e){
   const el=e.target&&e.target.closest?e.target.closest('[data-act]'):null;if(!el)return;
@@ -158,7 +238,14 @@
   if(act==='plang'){s.patientLanguage=d.val;render();return;}
   if(act==='interp'){s.interpreter=d.val;render();return;}
   if(act==='status'){s.status=d.val;render();step(1);return;}
-  if(act==='tree'){s.tree=d.val;render();go('tree');return;}
+  if(act==='tree'){if(!s.tree)s.tree=d.val;else if(s.tree!==d.val&&!s.addedTrees.includes(d.val))s.addedTrees.push(d.val);render();go('tree');return;} // a second tree is added, never replaces answers
+  if(act==='qnav'){qnav=!qnav;render();return;}
+  if(act==='remind'){remindOpen=!remindOpen;render();return;}
+  if(act==='deferopen'){deferOpen=deferOpen===d.val?null:d.val;render();return;}
+  if(act==='defer'){N.defer(s,d.id,d.val);deferOpen=null;render();return;}
+  if(act==='confirm'){N.confirmVital(s,d.id);render();return;}
+  if(act==='proto'){proto=d.val;render();return;}
+  if(act==='protoclose'){proto=null;render();return;}
   if(act==='priv'){s.privateScreen=d.val;render();return;}
   if(act==='hunk'){s.fallHeight='unknown';render();return;}
   if(act==='go'){go(d.val);return;}
@@ -174,8 +261,9 @@
   if(k==='sbp'||k==='dbp'){const bp=s.bp&&typeof s.bp==='object'?{...s.bp}:{};bp[k]=n;if(bp.sbp===undefined&&bp.dbp===undefined)s.bp='not_measured';else s.bp=Object.fromEntries(Object.entries(bp).filter(([,v])=>v!==undefined));}
   else if(k==='fallHeight')s.fallHeight=n;
   else s[k]=n===undefined?'not_measured':n;
-  r=N.evaluate(s,prior);prior=r.locked?r:{alerts:r.alerts,locked:false};$('nurse-banner').innerHTML=bannerHTML(r,s.uiLang);$('nurse-nav').innerHTML=navHTML(s,r,screen,s.uiLang);
+  r=N.evaluate(s,prior);prior=r.locked?r:{alerts:r.alerts,locked:false};$('nurse-banner').innerHTML=pinnedHTML(s,r,s.uiLang,qnav,remindOpen,deferOpen);$('nurse-nav').innerHTML=navHTML(s,r,screen,s.uiLang);
   if(k!=='fallHeight'&&$('nf-nm'))$('nf-nm').innerHTML=nmHTML(s,T(s.uiLang));
+  if(k!=='fallHeight'&&$('nf-cf'))$('nf-cf').innerHTML=cfHTML(r,T(s.uiLang));
   api.last={s,r,screen};
  }
  $('nurse-app').addEventListener('click',onClick);
