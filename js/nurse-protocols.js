@@ -89,6 +89,9 @@
   return out;
  }
  const LIBRARY=Object.freeze(['NC-CORD','NC-BIRTH','NC-APH','NC-ECL','NC-ANAPH','NC-SI','NC-PSY','NC-IPV','EA-NEO','EA-BRADY','EA-STROKE','EA-TRAUMA','EA-ABD','FD-PP-01','FD-ANT-04','FD-SYS-03','SYS-01','SYS-02-EXP','FD-GYN-01','FD-GYNB-02','FD-GYNB-04','FD-ANT-01','FD-LND-06','FD-LND-01','FD-LND-04','ANT-04','FORMULARY','ANT-02','ANT-07','GYN-02','PP-01','FD-ED-OB']);
- const api=Object.freeze({NAMES,COND,STATUS_LBL,MAP,ALERT_KEY,ORDER,LIBRARY,keyFor,forResult});
+ // NE2: URGENT alerts that pin an ordinary (non-bypass) protocol link. Never locks; never shows the rescue banner.
+ const URGENT_PIN=Object.freeze(['RF_BRADY']);
+ function urgentLinks(r){const out=[],seen=new Set();for(const a of r.alerts||[]){if(a.urgency!=='urgent'||a.task)continue;const k=keyFor(a);if(!k||!URGENT_PIN.includes(k)||seen.has(k))continue;seen.add(k);const m=MAP[k];const links=m.links(r.status||'unknown');out.push({key:k,alertId:a.id,status:r.status||'unknown',links,ids:links.map(x=>x.id),level:m.level,note:m.note||null,urgent:true});}return out;}
+ const api=Object.freeze({NAMES,COND,STATUS_LBL,MAP,ALERT_KEY,ORDER,LIBRARY,URGENT_PIN,keyFor,forResult,urgentLinks});
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.NurseProtocols=api;
 })(typeof self!=='undefined'?self:this);

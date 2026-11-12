@@ -88,3 +88,7 @@
 /* Michael t1993u: Relevant protocols on the Act-now screen */
 .nf-relproto{border:2px solid var(--navy);border-radius:10px;padding:8px;margin:12px 0}
 .nf-relproto h3{margin:0 0 4px}.nf-relproto .nf-trig{margin:6px 0}
+/* NE1 full pulse-confirm block; NE2 URGENT link (amber, not a bypass) */
+.nf-pulsecf{border:2px solid #c00000;border-radius:8px;padding:6px;margin:6px 0;background:#fff5f5}
+.nf-urgentlinks{display:flex;flex-wrap:wrap;gap:4px;margin-top:4px}
+.nf-urgentlink{min-height:30px;font-size:12.5px;padding:1px 8px;border:2px solid #fff;background:#fff3cd;color:#6b4e00;max-width:100%;overflow:hidden;text-overflow:ellipsis}
