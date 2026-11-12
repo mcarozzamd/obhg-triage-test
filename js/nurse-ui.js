@@ -31,7 +31,7 @@
    dischargeHome:'Discharge home / non-emergency transfer: BLOCKED until complete:',dischargeHomeOk:'Discharge home / non-emergency transfer: required screening complete.',
    emergencyTransfer:'Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.',
    defer:'Not completed…',deferred:'Not completed',deferWhy:'Reason (never records No; discharge stays blocked):',deferReason:{unstable:'Patient unstable/sedated',transferred:'Transferred to higher care',declined:'Patient declined',no_interpreter:'Interpreter unavailable'},
-   confirm:'Confirm value',pulseCf:'Confirm maternal pulse (radial palpation)',pulseWhy:'Could be the fetal heart rate entered by mistake: palpate the radial pulse. Alerts already apply.',cfNow:'Confirm or re-measure now',setStatus:'Set pregnancy status',relProto:'Relevant protocols',relNone:'Tap a tile: matching protocols appear here (in the bypass order).',allProto:'All protocols',relStatus:'Pregnancy status so far',deferRel:'Disposition released by documented deferral (never below URGENT): admit, transfer to L&D/higher care, or clinician bedside evaluation allowed; discharge home stays blocked.',implausible:'Implausible value: recheck. It counts only after you confirm.',vit:{hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'},
+   confirm:'Confirm value',pulseCf:'Confirm maternal pulse (radial palpation)',pulseShort:'Confirm pulse',pulseWhy:'Could be the fetal heart rate entered by mistake: palpate the radial pulse. Alerts already apply.',cfNow:'Confirm or re-measure now',pulseHint:'Palpate radial pulse — make sure this is the maternal HR, not the FHR.',jump:'Relevant protocols',setStatus:'Set pregnancy status',relProto:'Relevant protocols',relNone:'Tap a tile: matching protocols appear here (in the bypass order).',allProto:'All protocols',relStatus:'Pregnancy status so far',deferRel:'Disposition released by documented deferral (never below URGENT): admit, transfer to L&D/higher care, or clinician bedside evaluation allowed; discharge home stays blocked.',implausible:'Implausible value: recheck. It counts only after you confirm.',vit:{hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'},
    provCard:'PROVISIONAL card — pending Doc and Michael review. Not unit policy.',sources:'Sources',
    footer:'Decision support only · not unit policy · not the medical record · enter no PHI.'},
   es:{title:'Triaje de enfermería (PRUEBA)',test:'SITIO DE PRUEBA / PRÁCTICA: no es para la atención de pacientes. No ingrese información real de pacientes.',back:'Atrás',next:'Siguiente',yes:'Sí',no:'No',unsure:'No segura',none:'Ninguno de estos',noRest:'Todos los demás No',
@@ -59,7 +59,7 @@
    dischargeHome:'Alta a casa o traslado no urgente: BLOQUEADOS hasta completar:',dischargeHomeOk:'Alta a casa o traslado no urgente: evaluación requerida completa.',
    emergencyTransfer:'Traslado de emergencia a L&D, quirófano, UCI o urgencias: nunca lo retrase; entregue los puntos de evaluación pendientes.',
    defer:'No completado…',deferred:'No completado',deferWhy:'Motivo (nunca registra No; el alta sigue bloqueada):',deferReason:{unstable:'Paciente inestable o sedada',transferred:'Trasladada a mayor nivel de atención',declined:'La paciente se negó',no_interpreter:'Intérprete no disponible'},
-   confirm:'Confirmar valor',pulseCf:'Confirmar pulso materno (palpación radial)',pulseWhy:'Podría ser la frecuencia cardiaca fetal anotada por error: palpe el pulso radial. Las alertas ya se aplican.',cfNow:'Confirme o mida de nuevo ya',setStatus:'Indicar estado del embarazo',relProto:'Protocolos relevantes',relNone:'Toque una opción: aquí aparecen los protocolos correspondientes (en el orden de acceso directo).',allProto:'Todos los protocolos',relStatus:'Estado del embarazo hasta ahora',deferRel:'Disposición liberada por un aplazamiento documentado (nunca menos que URGENTE): se permite ingreso, traslado a L&D o a un nivel mayor de atención, o evaluación clínica a la cabecera; el alta a casa sigue bloqueada.',implausible:'Valor poco probable: vuelva a medir. Solo cuenta después de confirmarlo.',vit:{hr:'FC',spo2:'SpO2',sbp:'Sistólica',dbp:'Diastólica'},
+   confirm:'Confirmar valor',pulseCf:'Confirmar pulso materno (palpación radial)',pulseShort:'Confirmar pulso',pulseWhy:'Podría ser la frecuencia cardiaca fetal anotada por error: palpe el pulso radial. Las alertas ya se aplican.',cfNow:'Confirme o mida de nuevo ya',pulseHint:'Palpe el pulso radial — asegúrese de que sea la FC materna y no la FCF.',jump:'Protocolos relevantes',setStatus:'Indicar estado del embarazo',relProto:'Protocolos relevantes',relNone:'Toque una opción: aquí aparecen los protocolos correspondientes (en el orden de acceso directo).',allProto:'Todos los protocolos',relStatus:'Estado del embarazo hasta ahora',deferRel:'Disposición liberada por un aplazamiento documentado (nunca menos que URGENTE): se permite ingreso, traslado a L&D o a un nivel mayor de atención, o evaluación clínica a la cabecera; el alta a casa sigue bloqueada.',implausible:'Valor poco probable: vuelva a medir. Solo cuenta después de confirmarlo.',vit:{hr:'FC',spo2:'SpO2',sbp:'Sistólica',dbp:'Diastólica'},
    provCard:'Tarjeta PROVISIONAL — pendiente de revisión por Doc y Michael. No es política de la unidad.',sources:'Fuentes',
    footer:'Solo apoyo a la decisión · no es política de la unidad · no es el expediente médico · no ingrese información de salud protegida.',
    provisional:'Traducción provisional: pendiente de revisión por un clínico bilingüe calificado.'}
@@ -85,12 +85,14 @@
   list.push('catch','result');return list;
  }
  function nmHTML(s,L){return btn('nm','bp','1',L.nm+' ('+L.sbp+'/'+L.dbp+')',s.bp==='not_measured')+btn('nm','hr','1',L.nm+' ('+L.hr+')',s.hr==='not_measured')+btn('nm','spo2','1',L.nm+' (SpO2)',s.spo2==='not_measured');}
- function cfHTML(r,L){return (r.implausible||[]).map(x=>'<p class="nf-warn">'+esc(L.implausible)+'</p>'+btn('confirm',x.k,'1',L.confirm+': '+L.vit[x.k]+' '+x.v)).join('')+(r.pulseConfirmNeeded&&!(r.implausible||[]).some(x=>x.k==='hr')?'<p class="nf-warn" data-pulsecf="1">'+esc(L.pulseWhy)+'</p>'+btn('confirm','pulse','1',L.pulseCf+': '+r.vitals.v.hr):'');}
+ function cfHTML(r,L){return (r.implausible||[]).map(x=>'<p class="nf-warn">'+esc(L.implausible)+'</p>'+btn('confirm',x.k,'1',L.confirm+': '+L.vit[x.k]+' '+x.v)).join('')+(r.pulseConfirmNeeded&&!(r.implausible||[]).some(x=>x.k==='hr')?'<p class="nf-warn" data-pulsecf="1">'+esc(L.pulseWhy)+'</p>'+btn('confirm','pulse','1',L.pulseCf+': '+r.vitals.v.hr):'')+(r.pulseHint?'<p class="nf-hint" data-pulsehint="1">'+esc(L.pulseHint)+'</p>':'');}
 // NC7: pinned "Set pregnancy status" while status is unknown (beside the bypass button, else in the footer; no extra row).
 function statusChip(r,lang){return r.status==='unknown'?'<button type="button" class="nf-chip nf-setstatus" data-act="go" data-val="status" data-setstatus="1">'+esc(T(lang).setStatus)+'</button>':'';}
-// NC9 (+NC1): red "Confirm or re-measure now" row at the top of the pinned bar.
-function cfNowHTML(r,lang){const L=T(lang);const imp=r.implausible||[];if(!imp.length&&!r.pulseConfirmNeeded)return '';
- return '<span class="nf-cfnow" data-cfnow="1"><b>'+esc(L.cfNow)+':</b> '+imp.map(x=>'<button type="button" class="nf-chip nf-cfbtn" data-act="confirm" data-id="'+esc(x.k)+'" data-val="1">'+esc(L.confirm+': '+L.vit[x.k]+' '+x.v)+'</button>').join('')+(r.pulseConfirmNeeded&&!imp.some(x=>x.k==='hr')?'<button type="button" class="nf-chip nf-cfbtn" data-act="confirm" data-id="pulse" data-val="1">'+esc(L.pulseCf+': '+r.vitals.v.hr)+'</button>':'')+'</span>';}
+// ND1: red confirm chips lead the footer row; the banner's rescue text is never replaced.
+function cfNowHTML(r,lang){const L=T(lang);const imp=r.implausible||[];
+ return imp.map(x=>'<button type="button" class="nf-chip nf-cfbtn" data-cfnow="1" data-act="confirm" data-id="'+esc(x.k)+'" data-val="1" title="'+esc(L.implausible)+'">'+esc(L.cfNow+': '+L.vit[x.k]+' '+x.v)+'</button>').join('');}
+// ND1: the required maternal-pulse confirm (HR <50) is a short chip appended AFTER the rescue/acuity text in the top row.
+function pulseChipHTML(r,lang){const L=T(lang);return r.pulseConfirmNeeded&&!(r.implausible||[]).some(x=>x.k==='hr')?' <button type="button" class="nf-chip nf-cfbtn nf-cfpulse" data-cfnow="1" data-act="confirm" data-id="pulse" data-val="1" title="'+esc(L.pulseCf+' — '+L.pulseWhy)+'" aria-label="'+esc(L.pulseCf+': '+r.vitals.v.hr)+'">'+esc(L.pulseShort+' '+r.vitals.v.hr)+'</button>':'';}
 // Michael t1993u: live "Relevant protocols" on the Act-now screen (same order as the bypass; NB1/NC7 bleeding order with the status known so far).
 function relProtoHTML(r,lang){const L=T(lang),l=lang==='es'?'es':'en';const list=PR?PR.forResult(r):[];
  const body=list.length?list.map(t=>'<div class="nf-trig" data-reltrig="'+esc(t.key)+'"><b>'+esc(N.ITEMS[t.key]?N.ITEMS[t.key][l]:protoName(t.ids[0],lang))+'</b>'+t.links.map(x=>linkBtn(x,t,lang,false)).join('')+noteHTML(t,lang)+'</div>').join(''):'<p class="nf-hint">'+esc(L.relNone)+'</p>';
@@ -99,7 +101,8 @@ function visible(s,r,ids){return ids.filter(id=>r.states[id]!=='na_status');}
  function screenHTML(s,r,screen,lang){
   const L=T(lang);let h='';
   if(screen==='gate'){
-   h+='<h2>'+esc(L.gate)+'</h2><p class="nf-warn">'+esc(L.rescue)+'</p>'+N.GATE.map(id=>row(s,r,id,lang,'gate')).join('')+groupBtn(s,N.GATE,lang);
+   const relN=PR?new Set(PR.forResult(r).flatMap(t=>t.ids)).size:0;
+   h+='<h2>'+esc(L.gate)+'</h2><p class="nf-warn">'+esc(L.rescue)+(relN?' <button type="button" class="nf-chip nf-jump" data-act="jump" data-val="nf-relproto">'+esc(L.jump)+' ('+relN+') ↓</button>':'')+'</p>'+N.GATE.map(id=>row(s,r,id,lang,'gate')).join('')+groupBtn(s,N.GATE,lang);
    if(r.gateTapped)h+='<div class="nf-emergent"><b>'+esc(L.gateHit)+'</b> '+btn('go','','result',L.toResult)+btn('go','','vitals',L.contOpt)+'</div>';
    h+=relProtoHTML(r,lang);
   }else if(screen==='vitals'){
@@ -179,7 +182,8 @@ function pinFootHTML(r,lang,remindOpen){
  const chips=extra.map(t=>{const id=t.links[0].id,nt=t.note&&t.level==='gap'?t.note[l]:'';return '<button type="button" class="nf-chip nf-proto2'+(/^EA-/.test(id)?' nf-ea':'')+'" data-act="proto" data-val="'+esc(id)+'" data-key="'+esc(t.key)+'"'+(nt?' data-gap="'+esc(t.key)+'" title="'+esc(nt)+'" aria-label="'+esc(protoName(id,lang)+'. '+nt)+'"':'')+'>'+esc(protoName(id,lang).replace(/ \((provisional card|tarjeta provisional)\)$/,''))+'</button>';}).join('');
  const rem=reminderChip(r,lang,remindOpen)+(list.length?'':statusChip(r,lang));
  const moreB=more>0?'<button type="button" class="nf-chip nf-more" data-act="go" data-val="protocols" title="'+esc('+'+more+' · '+L.sec.protocols)+'" aria-label="'+esc('+'+more+' · '+L.sec.protocols)+'">+'+more+'</button>':'';
- return chips||rem||moreB?'<div class="nf-pinfoot">'+chips+moreB+rem+'</div>':'';
+ const cf=cfNowHTML(r,lang);
+ return cf||chips||rem||moreB?'<div class="nf-pinfoot">'+cf+chips+moreB+rem+'</div>':'';
 }
 function dischargeHTML(r,lang){const L=T(lang);return '<p class="nf-'+(r.dischargeBlocked?'warn':'hint')+'" data-discharge="1">'+esc(r.dischargeBlocked?L.dischargeHome+' '+r.dischargeOpen.map(id=>secName(L,id)).join(', '):L.dischargeHomeOk)+'</p><p class="nf-hint" data-etransfer="1">'+esc(L.emergencyTransfer)+'</p>';}
 function reminderChip(r,lang,open){
@@ -215,7 +219,7 @@ function protocolsScreenHTML(lang,r){const L=T(lang);return (r?protoButtons(r,la
   const body=(it.kind==='diagram'?'<a href="'+esc(D.image(it))+'" target="_blank" rel="noopener"><img class="diag" src="'+esc(D.image(it))+'" alt="'+esc(D.title(it))+'"></a>':'')+'<div class="cardtext">'+D.html(it)+'</div>'+(card?'<div class="cardtext">'+D.html(card)+'</div>':'');
   return '<div class="nf-protohdr"><b>'+esc(L.protoHdr)+'</b>: '+esc(protoName(id,lang))+' '+btn('protoclose','','1',L.protoBack)+'</div><div class="nf-protobody" lang="en"><h2>'+esc(D.title(it))+'</h2>'+body+'</div>';
  }
- function bannerHTML(r,lang){const L=T(lang),cf=cfNowHTML(r,lang);return '<span class="nf-acu">'+(r.locked?'<b>'+esc(L[r.urgency])+'</b> · '+(cf||'<span class="nf-hit">'+esc(L.gateHit)+'</span>'):'<b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b>'+(cf?' · '+cf:r.disposition?' · '+esc(L[r.disposition]):''))+'</span>'+(r.statusConflict?'<p>'+esc(L.conflict)+'</p>':'');}
+ function bannerHTML(r,lang){const L=T(lang);return '<span class="nf-acu">'+(r.locked?'<b>'+esc(L[r.urgency])+'</b> · <span class="nf-hit">'+esc(L.gateHit)+'</span>':'<b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b>'+(r.disposition?' · '+esc(L[r.disposition]):''))+pulseChipHTML(r,lang)+'</span>'+(r.statusConflict?'<p>'+esc(L.conflict)+'</p>':'');}
  function navHTML(s,r,screen,lang){const L=T(lang),list=screens(s,r),i=list.indexOf(screen);if(i<0)return btn('go','','result',L.sec.result);return (i>0?btn('nav','','-1',L.back):'')+(i<list.length-1?btn('nav','','1',L.next):'');}
  function pageStrings(lang){return T(lang);}
  const api={STR,ALERT_ES,screens,screenHTML,bannerHTML,navHTML,alertText,pageStrings,pinnedHTML,protocolHTML,protoButtons,reminderHTML,reminderChip,pinFootHTML,quickNavHTML,dischargeHTML,cfHTML};
@@ -242,6 +246,7 @@ function protocolsScreenHTML(lang,r){const L=T(lang);return (r?protoButtons(r,la
   const el=e.target&&e.target.closest?e.target.closest('[data-act]'):null;if(!el)return;
   const d=el.dataset,act=d.act;
   if(act==='lang'){start(d.val);return;}
+  if(act==='jump'){const t=$(d.val);if(t&&t.scrollIntoView)t.scrollIntoView({block:'start'});return;} // ND5: no state change
   if(!s)return;
   if(act==='ans'){if(s.answers[d.id]!==undefined&&s.where[d.id]&&s.where[d.id]!==screen){render();return;}const res=N.setAnswer(s,d.id,d.val,'item');if(res.ok)s.where[d.id]=screen;render();return;}
   if(act==='none'){const ids=String(d.ids||'').split(',').filter(Boolean);const g=N.groupNo(s,ids);if(g.ok)g.set.forEach(i=>s.where[i]=screen);render();const rr=r;if(screen!=='catch'&&!(screen==='gate'&&rr.gateTapped))step(1);return;}

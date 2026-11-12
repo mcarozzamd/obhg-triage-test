@@ -71,7 +71,7 @@
   RF_SBP_LOW:{links:st({postpartum:[L('FD-PP-01'),L('FD-SYS-03'),L('SYS-01')],ge20:[L('SYS-01'),L('FD-SYS-03'),L('NC-APH')],unknown:[L('SYS-01'),L('FD-SYS-03'),L('NC-APH')]},[L('SYS-01'),L('FD-SYS-03')]),level:'mapped'},
   RF_ABNORMAL_VITALS:{links:st({postpartum:[L('FD-PP-01'),L('FD-SYS-03'),L('SYS-01'),L('SYS-02-EXP')]},[L('SYS-01'),L('FD-SYS-03'),L('SYS-02-EXP')]),level:'mapped'},
   RF_ROM_LABOR:{links:()=>[L('FD-ANT-01'),L('ANT-02')],level:'mapped'},
-  RF_BRADY:{links:()=>[L('SYS-01'),L('FORMULARY','if_mag')],level:'partial',note:{en:'Interim card — no maternal bradycardia algorithm: critical illness + magnesium toxicity (calcium gluconate) in the formulary.',es:'Tarjeta interina — no hay algoritmo de bradicardia materna: enfermedad crítica + toxicidad por magnesio (gluconato de calcio) en el formulario.'}}, // NC1
+  RF_BRADY:{links:()=>[L('EA-BRADY'),L('SYS-01'),L('FORMULARY','if_mag')],level:'gap',note:{en:'Interim card — no maternal bradycardia algorithm in this app: bradycardia action card, then critical illness + magnesium toxicity in the formulary.',es:'Tarjeta interina — no hay algoritmo de bradicardia materna en esta aplicación: tarjeta de acción de bradicardia, luego enfermedad crítica + toxicidad por magnesio en el formulario.'}}, // NC1 + ND6
   generic:{links:()=>[L('EA-GENERIC')],level:'gap',note:{en:'Interim card — No specific protocol mapped for this alert.',es:'Tarjeta interina — No hay protocolo específico para esta alerta.'}},
  };
  for(const m of Object.values(MAP))m.ids=s=>m.links(s).map(x=>x.id);
@@ -88,7 +88,7 @@
   out.sort((x,y)=>ORDER.indexOf(x.key)-ORDER.indexOf(y.key));
   return out;
  }
- const LIBRARY=Object.freeze(['NC-CORD','NC-BIRTH','NC-APH','NC-ECL','NC-ANAPH','NC-SI','NC-PSY','NC-IPV','EA-NEO','EA-STROKE','EA-TRAUMA','EA-ABD','FD-PP-01','FD-ANT-04','FD-SYS-03','SYS-01','SYS-02-EXP','FD-GYN-01','FD-GYNB-02','FD-GYNB-04','FD-ANT-01','FD-LND-06','FD-LND-01','FD-LND-04','ANT-04','FORMULARY','ANT-02','ANT-07','GYN-02','PP-01','FD-ED-OB']);
+ const LIBRARY=Object.freeze(['NC-CORD','NC-BIRTH','NC-APH','NC-ECL','NC-ANAPH','NC-SI','NC-PSY','NC-IPV','EA-NEO','EA-BRADY','EA-STROKE','EA-TRAUMA','EA-ABD','FD-PP-01','FD-ANT-04','FD-SYS-03','SYS-01','SYS-02-EXP','FD-GYN-01','FD-GYNB-02','FD-GYNB-04','FD-ANT-01','FD-LND-06','FD-LND-01','FD-LND-04','ANT-04','FORMULARY','ANT-02','ANT-07','GYN-02','PP-01','FD-ED-OB']);
  const api=Object.freeze({NAMES,COND,STATUS_LBL,MAP,ALERT_KEY,ORDER,LIBRARY,keyFor,forResult});
  if(typeof module!=='undefined'&&module.exports)module.exports=api;else root.NurseProtocols=api;
 })(typeof self!=='undefined'?self:this);

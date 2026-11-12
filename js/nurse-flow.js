@@ -163,13 +163,15 @@ function parseVitals(s){
   const sbpLow=bp.measured&&bp.sbp<90||!bp.measured&&bp.evidence&&bp.evidence.sbp<90;
   if(sbpLow)add('RF_SBP_LOW','immediate','Measured SBP <90: possible shock. Immediate clinician assessment of stability now.');
   // NC1 (Doc re-verdict; MEWC HR <50, Mhyre 2014): maternal bradycardia from measured/confirmed or free-text HR.
-  const bradySx=pos(a.syncope)||pos(a.breathing_chest)||pos(a.seizure_ams)||sbpLow||(Number.isFinite(v.spo2)&&v.spo2<95)||/dizz|faint|syncop|passed out|chest pain|confus|altered/i.test(s.text||'');
+  const bradySx=pos(a.syncope)||pos(a.breathing_chest)||pos(a.seizure_ams)||sbpLow||(Number.isFinite(v.spo2)&&v.spo2<95)||/dizz|faint|syncop|passed out|chest pain|confus|altered/i.test(E.parse(s.text||'',{}).positiveText||''); // ND7: the text engine's negation scope ('denies dizziness' is not dizziness; 'but fainted' still counts)
   const bradyFrom=(hr,src)=>{if(!Number.isFinite(hr)||hr>=50)return;const imm=hr<40||bradySx;
    add(src==='text'?'TEXT_BRADY':'RF_BRADY',imm?'immediate':'urgent',(src==='text'?'Free text reports maternal HR ':'Maternal HR ')+hr+(imm?(hr<40?' (<40)':' (<50 with syncope/dizziness, chest pain, SBP <90, SpO2 <95 or altered mental status)')+': IMMEDIATE clinician assessment now; 12-lead ECG; review medicines (labetalol, magnesium, beta-blockers, opioids).':' (40–49, MEWC <50): clinician at the bedside within 15 min, 12-lead ECG, review medicines (labetalol, magnesium, beta-blockers, opioids), check temperature and symptoms.')+(src==='text'?' Enter the measured maternal pulse in the vitals screen.':''),{source:src==='text'?'text':'nurse'});};
   bradyFrom(v.hr,'nurse');
   {const tx=E.parse(s.text||'',{}).hr;if(Number.isFinite(tx)&&tx!==v.hr)bradyFrom(tx,'text');}
-  // NC1: HR <50, or 110–160 at ≥20 wk / labor, needs a "confirm maternal pulse (radial palpation)" tap (maternal vs fetal confusion). Never delays an alert.
-  const pulseConfirmNeeded=Number.isFinite(v.hr)&&(v.hr<50||(v.hr>=110&&v.hr<=160&&(st==='ge20'||pos(a.labor))))&&!(s.confirmed&&s.confirmed.pulse===v.hr);
+  // NC1/ND2: HR <50 needs a required "confirm maternal pulse (radial palpation)" tap (maternal vs fetal confusion). Never delays an alert.
+  // HR 110–160 at ≥20 wk / labor: non-blocking "palpate radial pulse" hint only (no hold, no section item).
+  const pulseConfirmNeeded=Number.isFinite(v.hr)&&v.hr<50&&!(s.confirmed&&s.confirmed.pulse===v.hr);
+  const pulseHint=Number.isFinite(v.hr)&&v.hr>=110&&v.hr<=160&&(st==='ge20'||pos(a.labor));
   if(pulseConfirmNeeded)add('PULSE_CONFIRM','prompt','Confirm maternal pulse (radial palpation): HR '+v.hr+' could be a fetal heart rate entered by mistake (or the reverse). Alerts already apply; confirm or re-measure now.',{task:true,level:'red'});
   if(v.abnormal)add('RF_ABNORMAL_VITALS','immediate','Measured HR ≥110 or SpO2 <95% (CMQCC): immediate clinician assessment of stability now.');
   if(imp.length)add('VITAL_CONFIRM','prompt','Implausible value entered ('+imp.map(x=>({hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'}[x.k])+' '+x.v).join(', ')+'): recheck, then tap “Confirm value” if correct. Not counted until confirmed; never delays other IMMEDIATE alerts.',{task:true,level:'red'});
@@ -269,7 +271,7 @@ function parseVitals(s){
   const GATE_SECTIONS=['vitals','safety','universal','addon','status'];
   const dischargeOpen=sections.filter(x=>GATE_SECTIONS.includes(x.id)&&!x.done);
   const dischargeBlocked=dischargeOpen.length>0;
-  const r={version:1,deferRelease,pulseConfirmNeeded,bypassBy,sections,dischargeBlocked,dischargeOpen:dischargeOpen.map(x=>x.id),implausible:imp,uiLang:s.uiLang,status:st,statusChosen:s.status,statusConflict:conflict,gateTapped,locked:!!locked,urgency:lockedUrgency,disposition,held,holds,unanswered,states,requiredItems:[...req],activeTrees,headers,traumaOn,traumaDenied,downgradeLock,r5Lock,spanishPathLock,interpreterNeeded,privateEffective:privateEff,vitals:{bp,v,stable},alerts:out,tasks:out.filter(x=>x.task||x.urgency==='prompt'),followUp,facts:{ga:f.ga,postpartum:!!f.postpartum},blocked:[...s.blocked]};
+  const r={version:1,deferRelease,pulseConfirmNeeded,pulseHint,bypassBy,sections,dischargeBlocked,dischargeOpen:dischargeOpen.map(x=>x.id),implausible:imp,uiLang:s.uiLang,status:st,statusChosen:s.status,statusConflict:conflict,gateTapped,locked:!!locked,urgency:lockedUrgency,disposition,held,holds,unanswered,states,requiredItems:[...req],activeTrees,headers,traumaOn,traumaDenied,downgradeLock,r5Lock,spanishPathLock,interpreterNeeded,privateEffective:privateEff,vitals:{bp,v,stable},alerts:out,tasks:out.filter(x=>x.task||x.urgency==='prompt'),followUp,facts:{ga:f.ga,postpartum:!!f.postpartum},blocked:[...s.blocked]};
   r.sbar=sbar(s,r);
   return r;
  }

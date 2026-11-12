@@ -76,9 +76,12 @@
 .nf-protohdr{position:static}
 .nf-protohdr .nf-warn{color:#ffeb3b;font-size:13px;margin:4px 0 0}
 .nf-provtag{display:inline-block;background:#6b4e00;color:#fff;border-radius:4px;padding:0 4px;font-weight:700}
-/* NC9/NC1: red confirm task at the top of the pinned bar (inside the acuity line; no extra row) */
-.nf-cfnow{background:#fff;color:#c00000;border-radius:6px;padding:1px 4px;display:inline}
-.nf-cfnow b{color:#c00000}.nf-cfnow .nf-chip{min-height:28px;font-size:12.5px;padding:1px 6px;border:2px solid #c00000;background:#ffebee;color:#c00000;margin:1px 0}
+/* ND1: red confirm chips lead the pinned footer row (rescue text never replaced) */
+.nf-pinfoot .nf-cfbtn{border:2px solid #fff;background:#fff;color:#c00000;font-weight:800;max-width:100%}
+.nf-acu .nf-cfpulse{display:inline-block;min-height:24px;font-size:12px;padding:0 6px;margin:0;border:2px solid #fff;background:#fff;color:#c00000;font-weight:800;vertical-align:baseline}
+/* ND5: jump chip inside the rescue line (no new row) */
+.nf-jump{display:inline-block;min-height:24px!important;font-size:12px!important;padding:0 7px!important;vertical-align:baseline;margin:0}
+.nf-relproto{scroll-margin-top:170px}
 .nf-byrow{display:flex;gap:4px;align-items:stretch}.nf-byrow .nf-proto{flex:1;min-width:0}
 .nf-setstatus{flex:none;border-color:#6b4e00;background:#fff3cd;color:#6b4e00;font-size:12px;padding:1px 6px;white-space:normal;max-width:112px;line-height:1.1;min-height:0}
 .nf-pinfoot .nf-proto2{max-width:40%}.nf-pinfoot .nf-chip{font-size:12px}.nf-pinfoot .nf-more{padding:1px 7px}
