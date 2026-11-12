@@ -1,0 +1,31 @@
+/* Nurse complaint-tree flow (TEST build) */
+.nf-lang{display:flex;flex-direction:column;gap:14px;padding:24px 12px}
+.nf-big{display:block;width:100%;min-height:64px;font-size:20px;font-weight:800;border:2px solid var(--navy);border-radius:12px;background:#fff;color:var(--navy);margin:6px 0}
+.nf-big[aria-pressed="true"]{background:var(--navy);color:#fff}
+.nf-row{border:1px solid var(--line);border-radius:8px;margin:6px 0;padding:6px 8px}
+.nf-q{font-size:15px;font-weight:700;margin-bottom:4px}
+.nf-ans{display:flex;flex-wrap:wrap;gap:6px}
+.nf-btn{min-height:48px;min-width:72px;font-size:16px;border:2px solid var(--line);border-radius:8px;background:#fff;color:var(--navy);padding:6px 12px;margin:2px}
+.nf-btn[aria-pressed="true"]{background:var(--navy);border-color:var(--navy);color:#fff;font-weight:800}
+.nf-btn[disabled]{opacity:.45}
+.nf-none{display:block;width:100%;min-height:56px;font-size:18px;font-weight:800;border:2px solid var(--teal);border-radius:10px;background:#eef8f7;color:var(--navy);margin:10px 0}
+.nf-ro{font-size:14px;color:#456;font-style:italic}
+.nf-hint,.nf-note{font-size:13px;color:#456;margin:4px 0}
+.nf-warn{color:var(--red);font-weight:700}
+.nf-emergent{background:#c00000;color:#fff;border-radius:10px;padding:10px;margin:10px 0}
+.nf-banner{position:sticky;top:0;z-index:5;background:#0B3D5C;color:#fff;border-radius:8px;padding:8px 10px;margin:8px 0}
+.nf-banner[data-urgency="immediate"]{background:#c00000}.nf-banner[data-urgency="urgent"]{background:#b35c00}
+.nf-vitals{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.nf-num{display:flex;flex-direction:column;font-weight:700;font-size:14px}.nf-num input{font-size:20px;padding:8px;border:1.5px solid var(--line);border-radius:8px}
+.nf-nav{display:flex;justify-content:space-between;gap:8px;margin:10px 0}
+.nf-red{color:var(--red);font-weight:700}.nf-amber{color:#8a5a00}
+.nf-prov{background:#FFF3CD;border:1px solid #E0B44C;border-radius:8px;padding:6px 8px;font-size:13px}
+.nf-test{background:#c00000;color:#fff;text-align:center;font-weight:700;padding:8px;border:3px solid #ffeb3b}
+#nf-sbar{width:100%;font-size:13px}
+.nf-compact h2{font-size:17px;margin:4px 0}
+.nf-compact .nf-row{display:flex;align-items:center;gap:6px;padding:3px 6px;margin:3px 0}
+.nf-compact .nf-q{flex:1;font-size:13px;line-height:1.2;margin:0;font-weight:600}
+.nf-compact .nf-ans{flex:none;flex-wrap:nowrap;gap:4px}
+.nf-compact .nf-btn{min-height:44px;min-width:50px;padding:2px 6px;font-size:14px;margin:0}
+.nf-compact .nf-warn{font-size:13px;margin:2px 0}
+.nf-compact .nf-note{flex-basis:100%}
