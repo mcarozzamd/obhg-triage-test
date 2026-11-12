@@ -11,7 +11,7 @@
    rescue:'Emergency? Activate rescue now. Never wait to finish this form.',
    gate:'Act now: is any of these happening?',gateHit:'EMERGENT: activate rescue now.',toResult:'Go to result / SBAR',contOpt:'Continue (optional)',
    gateLock:'A positive answer can only be changed through documented clinician reassessment.',
-   vitals:'Vital signs',sbp:'SBP',dbp:'DBP',hr:'HR',spo2:'SpO2 %',nm:'Not measured',nmHold:'Not measured or invalid holds disposition; never delays rescue.',
+   vitals:'Vital signs',sbp:'SBP',dbp:'DBP',hr:'Maternal pulse (not FHR)',hrHint:'Maternal pulse: palpate or pulse oximeter; not the FHR.',spo2:'SpO2 %',nm:'Not measured',nmHold:'Not measured or invalid holds disposition; never delays rescue.',
    plang:'Patient’s preferred language',pen:'English',pes:'Spanish',pother:'Other',interp:'Interpreter',ipro:'Professional interpreter (record ID)',iqb:'Qualified bilingual clinician (CSM-qualified)',ifam:'Family, friend, partner or minor',inone:'None',
    interpNote:'Family/partner/minor interpreting never counts as professional and makes IPV/SI screening not private.',
    status:'Pregnancy status',su:'Unknown',slt:'Less than 20 weeks',sge:'20 weeks or more',spp:'Postpartum',sppNote:'Postpartum = delivered at ≥20 weeks. Pregnancy loss/abortion <20 weeks → choose “Less than 20 weeks”.',
@@ -23,7 +23,7 @@
    result:'Result',acuity:'Acuity',disp:'Disposition',held:'HELD — complete:',alerts:'Alerts',tasks:'Open tasks',notAsked:'Not asked',notAssessed:'Not assessed',na:'N/A by status',copy:'Copy SBAR (English, for the chart)',copied:'Copied',sbarShow:'Show SBAR',restart:'New assessment / reset',
    restartConfirm:'Start over while RETAINING all unresolved alerts? Documented clinician reassessment is required; reset cannot resolve them.',retained:'Retained from earlier in this assessment; clinician reassessment required.',
    immediate:'IMMEDIATE',urgent:'URGENT',prompt:'CLINICIAN REVIEW',EMERGENT:'EMERGENT',URGENT:'URGENT',PROMPT_CLINICIAN_REVIEW:'PROMPT CLINICIAN REVIEW',
-   holds:{pick_complaint:'pick a complaint',unanswered:'unanswered questions',vitals:'BP, HR and SpO2',patient_language:'patient language',interpreter:'interpreter',private_screen:'private screening',status_conflict:'status conflict'},
+   holds:{pick_complaint:'pick a complaint',unanswered:'unanswered questions',vitals:'BP, HR and SpO2',patient_language:'patient language',interpreter:'interpreter',private_screen:'private screening',status_conflict:'status conflict',pulse_confirm:'confirm maternal pulse'},
    followUp:'Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.',unsureYes:'Unsure counts as Yes.',
    sections:'Sections',sec:{gate:'Act now',vitals:'Vitals / language',status:'Status',universal:'Other emergencies',pick:'Complaint',tree:'Complaint questions',safety:'Safety screen',addon:'Trauma add-on',catch:'Anything else',result:'Result / SBAR',protocols:'Protocols'},
    openProto:'Open protocol',noProto:'No protocol in this app',finish:'Finish screening (tap to return):',dischargeBlocked:'Discharge/transfer blocked until vitals + safety screen are complete.',dischargeOk:'Vitals + safety screen complete.',protoHdr:'Protocol (English clinician content)',protoBack:'Back to nurse triage',protoLib:'All protocols',allDone:'All sections screened.',
@@ -31,7 +31,7 @@
    dischargeHome:'Discharge home / non-emergency transfer: BLOCKED until complete:',dischargeHomeOk:'Discharge home / non-emergency transfer: required screening complete.',
    emergencyTransfer:'Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.',
    defer:'Not completed…',deferred:'Not completed',deferWhy:'Reason (never records No; discharge stays blocked):',deferReason:{unstable:'Patient unstable/sedated',transferred:'Transferred to higher care',declined:'Patient declined',no_interpreter:'Interpreter unavailable'},
-   confirm:'Confirm value',implausible:'Implausible value: recheck. It counts only after you confirm.',vit:{hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'},
+   confirm:'Confirm value',pulseCf:'Confirm maternal pulse (radial palpation)',pulseWhy:'Could be the fetal heart rate entered by mistake: palpate the radial pulse. Alerts already apply.',cfNow:'Confirm or re-measure now',setStatus:'Set pregnancy status',relProto:'Relevant protocols',relNone:'Tap a tile: matching protocols appear here (in the bypass order).',allProto:'All protocols',relStatus:'Pregnancy status so far',deferRel:'Disposition released by documented deferral (never below URGENT): admit, transfer to L&D/higher care, or clinician bedside evaluation allowed; discharge home stays blocked.',implausible:'Implausible value: recheck. It counts only after you confirm.',vit:{hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'},
    provCard:'PROVISIONAL card — pending Doc and Michael review. Not unit policy.',sources:'Sources',
    footer:'Decision support only · not unit policy · not the medical record · enter no PHI.'},
   es:{title:'Triaje de enfermería (PRUEBA)',test:'SITIO DE PRUEBA / PRÁCTICA: no es para la atención de pacientes. No ingrese información real de pacientes.',back:'Atrás',next:'Siguiente',yes:'Sí',no:'No',unsure:'No segura',none:'Ninguno de estos',noRest:'Todos los demás No',
@@ -39,7 +39,7 @@
    rescue:'¿Emergencia? Active el rescate ahora. Nunca espere a terminar este formulario.',
    gate:'Actuar ya: ¿está ocurriendo alguno de estos?',gateHit:'EMERGENTE: active el rescate ahora.',toResult:'Ir al resultado / SBAR',contOpt:'Continuar (opcional)',
    gateLock:'Una respuesta positiva solo puede cambiarse mediante una reevaluación clínica documentada.',
-   vitals:'Signos vitales',sbp:'Sistólica',dbp:'Diastólica',hr:'FC',spo2:'SpO2 %',nm:'No medido',nmHold:'Un valor no medido o inválido detiene la disposición; nunca retrasa el rescate.',
+   vitals:'Signos vitales',sbp:'Sistólica',dbp:'Diastólica',hr:'Pulso materno (no FCF)',hrHint:'Pulso materno: palpe o use el oxímetro de pulso; no es la FCF.',spo2:'SpO2 %',nm:'No medido',nmHold:'Un valor no medido o inválido detiene la disposición; nunca retrasa el rescate.',
    plang:'Idioma preferido de la paciente',pen:'Inglés',pes:'Español',pother:'Otro',interp:'Intérprete',ipro:'Intérprete profesional (anote el número)',iqb:'Clínico bilingüe calificado (calificado por CSM)',ifam:'Familiar, amistad, pareja o menor de edad',inone:'Ninguno',
    interpNote:'La interpretación por familiar, pareja o menor nunca cuenta como profesional y hace que la evaluación de violencia y de ideas suicidas no sea privada.',
    status:'Estado del embarazo',su:'Desconocido',slt:'Menos de 20 semanas',sge:'20 semanas o más',spp:'Posparto',sppNote:'Posparto = parto a las 20 semanas o más. Pérdida del embarazo o aborto antes de 20 semanas → elija “Menos de 20 semanas”.',
@@ -51,21 +51,21 @@
    result:'Resultado',acuity:'Urgencia',disp:'Disposición',held:'DETENIDA — complete:',alerts:'Alertas',tasks:'Tareas pendientes',notAsked:'No preguntado',notAssessed:'No evaluado',na:'No aplica por estado',copy:'Copiar SBAR (en inglés, para el expediente)',copied:'Copiado',sbarShow:'Ver SBAR (inglés)',restart:'Nueva evaluación / reiniciar',
    restartConfirm:'¿Empezar de nuevo CONSERVANDO todas las alertas sin resolver? Se requiere reevaluación clínica documentada; reiniciar no las resuelve.',retained:'Conservada de antes en esta evaluación; se requiere reevaluación clínica.',
    immediate:'INMEDIATA',urgent:'URGENTE',prompt:'REVISIÓN CLÍNICA',EMERGENT:'EMERGENTE',URGENT:'URGENTE',PROMPT_CLINICIAN_REVIEW:'REVISIÓN CLÍNICA PRONTA',
-   holds:{pick_complaint:'elegir un motivo',unanswered:'preguntas sin responder',vitals:'PA, FC y SpO2',patient_language:'idioma de la paciente',interpreter:'intérprete',private_screen:'evaluación en privado',status_conflict:'conflicto de estado'},
+   holds:{pick_complaint:'elegir un motivo',unanswered:'preguntas sin responder',vitals:'PA, FC y SpO2',patient_language:'idioma de la paciente',interpreter:'intérprete',private_screen:'evaluación en privado',status_conflict:'conflicto de estado',pulse_confirm:'confirmar pulso materno'},
    followUp:'Traslado de emergencia a L&D, quirófano, UCI o urgencias: nunca lo retrase; entregue los puntos de evaluación pendientes.',unsureYes:'No estoy segura cuenta como Sí.',
    sections:'Secciones',sec:{gate:'Actuar ya',vitals:'Signos vitales / idioma',status:'Estado',universal:'Otras emergencias',pick:'Motivo',tree:'Preguntas del motivo',safety:'Evaluación de seguridad',addon:'Complemento de trauma',catch:'Algo más',result:'Resultado / SBAR',protocols:'Protocolos'},
    openProto:'Abrir protocolo (en inglés)',noProto:'No hay protocolo en esta aplicación',finish:'Termine la evaluación (toque para volver):',dischargeBlocked:'Alta o traslado bloqueados hasta completar signos vitales y evaluación de seguridad.',dischargeOk:'Signos vitales y evaluación de seguridad completos.',protoHdr:'Protocolo (en inglés)',protoBack:'Volver al triaje de enfermería',protoLib:'Todos los protocolos',allDone:'Todas las secciones evaluadas.',
-   provBadge:'PROVISIONAL',emergencyCard:'Tarjeta de acción de emergencia',finishN:'Termine la evaluación',
+   provBadge:'PROVISIONAL',emergencyCard:'Tarjeta de acción de emergencia',finishN:'Terminar evaluación',
    dischargeHome:'Alta a casa o traslado no urgente: BLOQUEADOS hasta completar:',dischargeHomeOk:'Alta a casa o traslado no urgente: evaluación requerida completa.',
    emergencyTransfer:'Traslado de emergencia a L&D, quirófano, UCI o urgencias: nunca lo retrase; entregue los puntos de evaluación pendientes.',
    defer:'No completado…',deferred:'No completado',deferWhy:'Motivo (nunca registra No; el alta sigue bloqueada):',deferReason:{unstable:'Paciente inestable o sedada',transferred:'Trasladada a mayor nivel de atención',declined:'La paciente se negó',no_interpreter:'Intérprete no disponible'},
-   confirm:'Confirmar valor',implausible:'Valor poco probable: vuelva a medir. Solo cuenta después de confirmarlo.',vit:{hr:'FC',spo2:'SpO2',sbp:'Sistólica',dbp:'Diastólica'},
+   confirm:'Confirmar valor',pulseCf:'Confirmar pulso materno (palpación radial)',pulseWhy:'Podría ser la frecuencia cardiaca fetal anotada por error: palpe el pulso radial. Las alertas ya se aplican.',cfNow:'Confirme o mida de nuevo ya',setStatus:'Indicar estado del embarazo',relProto:'Protocolos relevantes',relNone:'Toque una opción: aquí aparecen los protocolos correspondientes (en el orden de acceso directo).',allProto:'Todos los protocolos',relStatus:'Estado del embarazo hasta ahora',deferRel:'Disposición liberada por un aplazamiento documentado (nunca menos que URGENTE): se permite ingreso, traslado a L&D o a un nivel mayor de atención, o evaluación clínica a la cabecera; el alta a casa sigue bloqueada.',implausible:'Valor poco probable: vuelva a medir. Solo cuenta después de confirmarlo.',vit:{hr:'FC',spo2:'SpO2',sbp:'Sistólica',dbp:'Diastólica'},
    provCard:'Tarjeta PROVISIONAL — pendiente de revisión por Doc y Michael. No es política de la unidad.',sources:'Fuentes',
    footer:'Solo apoyo a la decisión · no es política de la unidad · no es el expediente médico · no ingrese información de salud protegida.',
    provisional:'Traducción provisional: pendiente de revisión por un clínico bilingüe calificado.'}
  };
  // Localized alert names (ES provisional). EN shows full engine text.
- const ALERT_ES={RF_SEVERE_BP:'Presión arterial grave (sistólica ≥160 o diastólica ≥110): evaluación clínica inmediata.',RF_SBP_LOW:'Sistólica <90: posible choque. Evaluación inmediata.',RF_ABNORMAL_VITALS:'FC ≥110 o SpO2 <95 %: evaluación inmediata de estabilidad.',RF_FALL_HIGH:'Caída de más de 10 pies o altura desconocida: evaluación inmediata.',FALL_HEIGHT_REQUIRED:'Paso requerido: anote la altura de la caída.',IPV_SAFETY:'Seguridad: no se puede separar o no está segura: INMEDIATA, con trabajo social.',PARTNER_RESCREEN:'Tarea: no evaluada en privado. Sepárela y vuelva a preguntar en privado con intérprete profesional.',RF_TRAUMA_DANGER:'Trauma sin todos los peligros descartados, sin evaluación privada o con bloqueo de idioma: INMEDIATA.',TRAUMA_WORKUP:'Trauma estable: seguir el estudio de trauma (monitoreo fetal ≥4 h si ≥20 semanas, Rh, Kleihauer-Betke).',RF_INTERPRETER_SI:'Pensamientos suicidas pasivos o intrusivos con bloqueo de idioma: INMEDIATA hasta evaluar con intérprete profesional.',RF_PUL_LOCK:'Embarazo de ubicación desconocida con bloqueo de idioma: evaluación inmediata.',TEXT_ABNORMAL_VITALS:'El texto libre indica signos vitales anormales: evaluación inmediata de estabilidad.',VITAL_CONFIRM:'Valor de signo vital poco probable: vuelva a medir y confirme. No cuenta hasta confirmarlo.',RF_ROM_LABOR:'Ruptura de membranas con trabajo de parto: evaluación obstétrica inmediata.'};
+ const ALERT_ES={RF_BRADY:'Bradicardia materna (FC <50): ECG de 12 derivaciones, revisar medicamentos (labetalol, magnesio, betabloqueadores, opioides); evaluación clínica según el nivel indicado.',TEXT_BRADY:'El texto libre indica bradicardia materna (FC <50): anote el pulso materno medido en signos vitales.',PULSE_CONFIRM:'Confirme el pulso materno (palpación radial): la FC podría ser la frecuencia cardiaca fetal.',RF_SEVERE_BP:'Presión arterial grave (sistólica ≥160 o diastólica ≥110): evaluación clínica inmediata.',RF_SBP_LOW:'Sistólica <90: posible choque. Evaluación inmediata.',RF_ABNORMAL_VITALS:'FC ≥110 o SpO2 <95 %: evaluación inmediata de estabilidad.',RF_FALL_HIGH:'Caída de más de 10 pies o altura desconocida: evaluación inmediata.',FALL_HEIGHT_REQUIRED:'Paso requerido: anote la altura de la caída.',IPV_SAFETY:'Seguridad: no se puede separar o no está segura: INMEDIATA, con trabajo social.',PARTNER_RESCREEN:'Tarea: no evaluada en privado. Sepárela y vuelva a preguntar en privado con intérprete profesional.',RF_TRAUMA_DANGER:'Trauma sin todos los peligros descartados, sin evaluación privada o con bloqueo de idioma: INMEDIATA.',TRAUMA_WORKUP:'Trauma estable: seguir el estudio de trauma (monitoreo fetal ≥4 h si ≥20 semanas, Rh, Kleihauer-Betke).',RF_INTERPRETER_SI:'Pensamientos suicidas pasivos o intrusivos con bloqueo de idioma: INMEDIATA hasta evaluar con intérprete profesional.',RF_PUL_LOCK:'Embarazo de ubicación desconocida con bloqueo de idioma: evaluación inmediata.',TEXT_ABNORMAL_VITALS:'El texto libre indica signos vitales anormales: evaluación inmediata de estabilidad.',VITAL_CONFIRM:'Valor de signo vital poco probable: vuelva a medir y confirme. No cuenta hasta confirmarlo.',RF_ROM_LABOR:'Ruptura de membranas con trabajo de parto: evaluación obstétrica inmediata.'};
  const T=lang=>STR[lang]||STR.en;
  const itemLabel=(id,lang)=>N.ITEMS[id][lang==='es'?'es':'en'];
  // ---------- pure renderers (testable in Node) ----------
@@ -85,17 +85,27 @@
   list.push('catch','result');return list;
  }
  function nmHTML(s,L){return btn('nm','bp','1',L.nm+' ('+L.sbp+'/'+L.dbp+')',s.bp==='not_measured')+btn('nm','hr','1',L.nm+' ('+L.hr+')',s.hr==='not_measured')+btn('nm','spo2','1',L.nm+' (SpO2)',s.spo2==='not_measured');}
- function cfHTML(r,L){return (r.implausible||[]).map(x=>'<p class="nf-warn">'+esc(L.implausible)+'</p>'+btn('confirm',x.k,'1',L.confirm+': '+L.vit[x.k]+' '+x.v)).join('');}
+ function cfHTML(r,L){return (r.implausible||[]).map(x=>'<p class="nf-warn">'+esc(L.implausible)+'</p>'+btn('confirm',x.k,'1',L.confirm+': '+L.vit[x.k]+' '+x.v)).join('')+(r.pulseConfirmNeeded&&!(r.implausible||[]).some(x=>x.k==='hr')?'<p class="nf-warn" data-pulsecf="1">'+esc(L.pulseWhy)+'</p>'+btn('confirm','pulse','1',L.pulseCf+': '+r.vitals.v.hr):'');}
+// NC7: pinned "Set pregnancy status" while status is unknown (beside the bypass button, else in the footer; no extra row).
+function statusChip(r,lang){return r.status==='unknown'?'<button type="button" class="nf-chip nf-setstatus" data-act="go" data-val="status" data-setstatus="1">'+esc(T(lang).setStatus)+'</button>':'';}
+// NC9 (+NC1): red "Confirm or re-measure now" row at the top of the pinned bar.
+function cfNowHTML(r,lang){const L=T(lang);const imp=r.implausible||[];if(!imp.length&&!r.pulseConfirmNeeded)return '';
+ return '<span class="nf-cfnow" data-cfnow="1"><b>'+esc(L.cfNow)+':</b> '+imp.map(x=>'<button type="button" class="nf-chip nf-cfbtn" data-act="confirm" data-id="'+esc(x.k)+'" data-val="1">'+esc(L.confirm+': '+L.vit[x.k]+' '+x.v)+'</button>').join('')+(r.pulseConfirmNeeded&&!imp.some(x=>x.k==='hr')?'<button type="button" class="nf-chip nf-cfbtn" data-act="confirm" data-id="pulse" data-val="1">'+esc(L.pulseCf+': '+r.vitals.v.hr)+'</button>':'')+'</span>';}
+// Michael t1993u: live "Relevant protocols" on the Act-now screen (same order as the bypass; NB1/NC7 bleeding order with the status known so far).
+function relProtoHTML(r,lang){const L=T(lang),l=lang==='es'?'es':'en';const list=PR?PR.forResult(r):[];
+ const body=list.length?list.map(t=>'<div class="nf-trig" data-reltrig="'+esc(t.key)+'"><b>'+esc(N.ITEMS[t.key]?N.ITEMS[t.key][l]:protoName(t.ids[0],lang))+'</b>'+t.links.map(x=>linkBtn(x,t,lang,false)).join('')+noteHTML(t,lang)+'</div>').join(''):'<p class="nf-hint">'+esc(L.relNone)+'</p>';
+ return '<section class="nf-relproto" id="nf-relproto" data-rel="1"><h3>'+esc(L.relProto)+'</h3><p class="nf-hint" data-relstatus="'+esc(r.status)+'">'+esc(L.relStatus)+': '+esc((l==='es'?{unknown:'desconocido',lt20:'<20 semanas',ge20:'≥20 semanas',postpartum:'posparto'}:{unknown:'unknown',lt20:'<20 wk',ge20:'≥20 wk',postpartum:'postpartum'})[r.status]||r.status)+'</p>'+body+'<button type="button" class="nf-big" data-act="go" data-val="protocols" data-allproto="1">'+esc(L.allProto)+'</button></section>';}
 function visible(s,r,ids){return ids.filter(id=>r.states[id]!=='na_status');}
  function screenHTML(s,r,screen,lang){
   const L=T(lang);let h='';
   if(screen==='gate'){
    h+='<h2>'+esc(L.gate)+'</h2><p class="nf-warn">'+esc(L.rescue)+'</p>'+N.GATE.map(id=>row(s,r,id,lang,'gate')).join('')+groupBtn(s,N.GATE,lang);
    if(r.gateTapped)h+='<div class="nf-emergent"><b>'+esc(L.gateHit)+'</b> '+btn('go','','result',L.toResult)+btn('go','','vitals',L.contOpt)+'</div>';
+   h+=relProtoHTML(r,lang);
   }else if(screen==='vitals'){
    const f=(k,lab,val)=>'<label class="nf-num">'+esc(lab)+'<input id="nf-'+k+'" data-num="'+k+'" type="number" inputmode="numeric" value="'+(Number.isFinite(val)?val:'')+'"></label>';
    const bp=s.bp&&typeof s.bp==='object'?s.bp:{};
-   h+='<h2>'+esc(L.vitals)+'</h2><div class="nf-vitals">'+f('sbp',L.sbp,bp.sbp)+f('dbp',L.dbp,bp.dbp)+f('hr',L.hr,s.hr)+f('spo2',L.spo2,s.spo2)+'</div><div id="nf-nm">'+nmHTML(s,L)+'</div><div id="nf-cf">'+cfHTML(r,L)+'</div><p class="nf-hint">'+esc(L.nmHold)+'</p>'+
+   h+='<h2>'+esc(L.vitals)+'</h2><div class="nf-vitals">'+f('sbp',L.sbp,bp.sbp)+f('dbp',L.dbp,bp.dbp)+f('hr',L.hr,s.hr)+f('spo2',L.spo2,s.spo2)+'</div><p class="nf-hint" data-hrhint="1">'+esc(L.hrHint)+'</p><div id="nf-nm">'+nmHTML(s,L)+'</div><div id="nf-cf">'+cfHTML(r,L)+'</div><p class="nf-hint">'+esc(L.nmHold)+'</p>'+
     '<h3>'+esc(L.plang)+'</h3>'+[['en',L.pen],['es',L.pes],['other',L.pother]].map(([v,t])=>btn('plang','',v,t,s.patientLanguage===v)).join('');
    if(r.interpreterNeeded)h+='<h3>'+esc(L.interp)+'</h3>'+[['professional',L.ipro],['qualified_bilingual',L.iqb],['family',L.ifam],['none',L.inone]].map(([v,t])=>btn('interp','',v,t,s.interpreter===v)).join('')+'<p class="nf-hint">'+esc(L.interpNote)+'</p>';
   }else if(screen==='status'){
@@ -129,6 +139,7 @@ function visible(s,r,ids){return ids.filter(id=>r.states[id]!=='na_status');}
   }else if(screen==='result'){
    const names=k=>Object.keys(r.states).filter(id=>r.states[id]===k&&!N.ITEMS[id].header).map(id=>itemLabel(id,lang));
    h+='<h2>'+esc(L.result)+'</h2><p class="nf-acuity" data-urgency="'+r.urgency+'"><b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b> · '+esc(L.disp)+': '+esc(r.disposition?L[r.disposition]:L.held+' '+r.holds.map(x=>L.holds[x]).join(', '))+'</p>';
+   if(r.deferRelease)h+='<p class="nf-warn" data-deferrel="1">'+esc(L.deferRel)+'</p>';
    h+=dischargeHTML(r,lang);
    h+='<h3>'+esc(L.alerts)+'</h3><ul>'+r.alerts.filter(x=>!x.task&&x.id!=='PARTNER_RESCREEN').map(x=>'<li class="'+(x.level==='red'?'nf-red':'nf-amber')+'">'+esc(alertText(x,lang))+(x.retained?' — '+esc(L.retained):'')+'</li>').join('')+'</ul>';
    const tasks=r.alerts.filter(x=>x.task||x.id==='PARTNER_RESCREEN'||x.id==='FALL_HEIGHT_REQUIRED');
@@ -158,7 +169,7 @@ function noteHTML(t,lang){return t.note&&t.level!=='mapped'&&t.level!=='card'?'<
 function protoButtons(r,lang,all){
  if(!PR)return '';const L=T(lang),list=PR.forResult(r);if(!list.length)return '';
  if(all)return '<div class="nf-bypass nf-bypass-all">'+list.map(t=>'<div class="nf-trig" data-trig="'+esc(t.key)+'"><b>'+esc(N.ITEMS[t.key]?N.ITEMS[t.key][lang==='es'?'es':'en']:protoName(t.ids[0],lang))+'</b>'+t.links.map(x=>linkBtn(x,t,lang,false)).join('')+noteHTML(t,lang)+(t.level==='card'&&t.note?'<span class="nf-hint">'+esc(t.note[lang==='es'?'es':'en'])+'</span>':'')+'</div>').join('')+'</div>';
- return '<div class="nf-bypass">'+linkBtn(list[0].links[0],list[0],lang,true)+noteHTML(list[0],lang)+'</div>';
+ return '<div class="nf-bypass"><div class="nf-byrow">'+linkBtn(list[0].links[0],list[0],lang,true)+statusChip(r,lang)+'</div>'+noteHTML(list[0],lang)+'</div>';
 }
 // NB12 footer row: other gap/card triggers as compact card chips (never only behind +N; gap note in label/tooltip), then +N, then Finish screening.
 function pinFootHTML(r,lang,remindOpen){
@@ -166,8 +177,8 @@ function pinFootHTML(r,lang,remindOpen){
  const extra=list.slice(1).filter(t=>t.level==='gap'||t.level==='card');
  const more=list.reduce((n,t)=>n+t.links.length,0)-1-extra.length;
  const chips=extra.map(t=>{const id=t.links[0].id,nt=t.note&&t.level==='gap'?t.note[l]:'';return '<button type="button" class="nf-chip nf-proto2'+(/^EA-/.test(id)?' nf-ea':'')+'" data-act="proto" data-val="'+esc(id)+'" data-key="'+esc(t.key)+'"'+(nt?' data-gap="'+esc(t.key)+'" title="'+esc(nt)+'" aria-label="'+esc(protoName(id,lang)+'. '+nt)+'"':'')+'>'+esc(protoName(id,lang).replace(/ \((provisional card|tarjeta provisional)\)$/,''))+'</button>';}).join('');
- const rem=reminderChip(r,lang,remindOpen);
- const moreB=more>0?'<button type="button" class="nf-chip" data-act="go" data-val="protocols">+'+more+' · '+esc(L.sec.protocols)+'</button>':'';
+ const rem=reminderChip(r,lang,remindOpen)+(list.length?'':statusChip(r,lang));
+ const moreB=more>0?'<button type="button" class="nf-chip nf-more" data-act="go" data-val="protocols" title="'+esc('+'+more+' · '+L.sec.protocols)+'" aria-label="'+esc('+'+more+' · '+L.sec.protocols)+'">+'+more+'</button>':'';
  return chips||rem||moreB?'<div class="nf-pinfoot">'+chips+moreB+rem+'</div>':'';
 }
 function dischargeHTML(r,lang){const L=T(lang);return '<p class="nf-'+(r.dischargeBlocked?'warn':'hint')+'" data-discharge="1">'+esc(r.dischargeBlocked?L.dischargeHome+' '+r.dischargeOpen.map(id=>secName(L,id)).join(', '):L.dischargeHomeOk)+'</p><p class="nf-hint" data-etransfer="1">'+esc(L.emergencyTransfer)+'</p>';}
@@ -204,7 +215,7 @@ function protocolsScreenHTML(lang,r){const L=T(lang);return (r?protoButtons(r,la
   const body=(it.kind==='diagram'?'<a href="'+esc(D.image(it))+'" target="_blank" rel="noopener"><img class="diag" src="'+esc(D.image(it))+'" alt="'+esc(D.title(it))+'"></a>':'')+'<div class="cardtext">'+D.html(it)+'</div>'+(card?'<div class="cardtext">'+D.html(card)+'</div>':'');
   return '<div class="nf-protohdr"><b>'+esc(L.protoHdr)+'</b>: '+esc(protoName(id,lang))+' '+btn('protoclose','','1',L.protoBack)+'</div><div class="nf-protobody" lang="en"><h2>'+esc(D.title(it))+'</h2>'+body+'</div>';
  }
- function bannerHTML(r,lang){const L=T(lang);return '<span class="nf-acu">'+(r.locked?'<b>'+esc(L[r.urgency])+'</b> · <span class="nf-hit">'+esc(L.gateHit)+'</span>':'<b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b>'+(r.disposition?' · '+esc(L[r.disposition]):''))+'</span>'+(r.statusConflict?'<p>'+esc(L.conflict)+'</p>':'');}
+ function bannerHTML(r,lang){const L=T(lang),cf=cfNowHTML(r,lang);return '<span class="nf-acu">'+(r.locked?'<b>'+esc(L[r.urgency])+'</b> · '+(cf||'<span class="nf-hit">'+esc(L.gateHit)+'</span>'):'<b>'+esc(L.acuity)+': '+esc(L[r.urgency])+'</b>'+(cf?' · '+cf:r.disposition?' · '+esc(L[r.disposition]):''))+'</span>'+(r.statusConflict?'<p>'+esc(L.conflict)+'</p>':'');}
  function navHTML(s,r,screen,lang){const L=T(lang),list=screens(s,r),i=list.indexOf(screen);if(i<0)return btn('go','','result',L.sec.result);return (i>0?btn('nav','','-1',L.back):'')+(i<list.length-1?btn('nav','','1',L.next):'');}
  function pageStrings(lang){return T(lang);}
  const api={STR,ALERT_ES,screens,screenHTML,bannerHTML,navHTML,alertText,pageStrings,pinnedHTML,protocolHTML,protoButtons,reminderHTML,reminderChip,pinFootHTML,quickNavHTML,dischargeHTML,cfHTML};

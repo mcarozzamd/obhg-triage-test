@@ -38,7 +38,7 @@
  ITEMS.harm_intent.hint={en:'Uncertain intent: answer Unsure here.',es:'Si la intención es incierta: responda No estoy segura aquí.'};
  Object.values(ITEMS).forEach(Object.freeze);Object.freeze(ITEMS);
  // ---------- structure ----------
- const GATE=Object.freeze(['cord_prolapse','collapse_maternal','collapse_baby','birth_imminent','hemorrhage','seizure_ams','breathing_chest','stroke','anaphylaxis','syncope','critical_shock']); // NF4 10 tiles + NB11 collapse split = 11; NB12 order: cord prolapse, collapse, birth first
+ const GATE=Object.freeze(['collapse_maternal','collapse_baby','cord_prolapse','birth_imminent','hemorrhage','seizure_ams','breathing_chest','stroke','anaphylaxis','syncope','critical_shock']); // NF4 10 tiles + NB11 collapse split = 11; NC11 order: collapse (maternal, baby), cord prolapse, imminent birth first
  const UNIVERSAL=Object.freeze(['headache_vision','sepsis','severe_abdominal','ectopic','fetal_movement']); // NF1/NF2
  const SAFETY=Object.freeze(['harm_intent','intrusive_thoughts','psychosis','trauma_ipv','ipv_safety']); // NF6/NF9 (+ privateScreen NF7)
  const MECH=Object.freeze(['mech_crash','mech_vehicle','mech_pedestrian','mech_abdomen','mech_penetrating','mech_strangulation','mech_sexual_assault','mech_intoxication']); // NF8 (+ fall/height)
@@ -162,10 +162,19 @@ function parseVitals(s){
   if(bp.valid&&bp.measured&&bp.severe||!bp.valid&&bp.severeEvidence)add('RF_SEVERE_BP','immediate',bp.measured?'Measured BP '+bp.sbp+'/'+bp.dbp+': SBP ≥160 OR DBP ≥110. Immediate clinician assessment and repeat BP per the adopted severe-hypertension pathway; symptoms are not required.':'A measured BP component is severe (SBP ≥160 OR DBP ≥110): immediate clinician assessment now; do not await the other component.');
   const sbpLow=bp.measured&&bp.sbp<90||!bp.measured&&bp.evidence&&bp.evidence.sbp<90;
   if(sbpLow)add('RF_SBP_LOW','immediate','Measured SBP <90: possible shock. Immediate clinician assessment of stability now.');
+  // NC1 (Doc re-verdict; MEWC HR <50, Mhyre 2014): maternal bradycardia from measured/confirmed or free-text HR.
+  const bradySx=pos(a.syncope)||pos(a.breathing_chest)||pos(a.seizure_ams)||sbpLow||(Number.isFinite(v.spo2)&&v.spo2<95)||/dizz|faint|syncop|passed out|chest pain|confus|altered/i.test(s.text||'');
+  const bradyFrom=(hr,src)=>{if(!Number.isFinite(hr)||hr>=50)return;const imm=hr<40||bradySx;
+   add(src==='text'?'TEXT_BRADY':'RF_BRADY',imm?'immediate':'urgent',(src==='text'?'Free text reports maternal HR ':'Maternal HR ')+hr+(imm?(hr<40?' (<40)':' (<50 with syncope/dizziness, chest pain, SBP <90, SpO2 <95 or altered mental status)')+': IMMEDIATE clinician assessment now; 12-lead ECG; review medicines (labetalol, magnesium, beta-blockers, opioids).':' (40–49, MEWC <50): clinician at the bedside within 15 min, 12-lead ECG, review medicines (labetalol, magnesium, beta-blockers, opioids), check temperature and symptoms.')+(src==='text'?' Enter the measured maternal pulse in the vitals screen.':''),{source:src==='text'?'text':'nurse'});};
+  bradyFrom(v.hr,'nurse');
+  {const tx=E.parse(s.text||'',{}).hr;if(Number.isFinite(tx)&&tx!==v.hr)bradyFrom(tx,'text');}
+  // NC1: HR <50, or 110–160 at ≥20 wk / labor, needs a "confirm maternal pulse (radial palpation)" tap (maternal vs fetal confusion). Never delays an alert.
+  const pulseConfirmNeeded=Number.isFinite(v.hr)&&(v.hr<50||(v.hr>=110&&v.hr<=160&&(st==='ge20'||pos(a.labor))))&&!(s.confirmed&&s.confirmed.pulse===v.hr);
+  if(pulseConfirmNeeded)add('PULSE_CONFIRM','prompt','Confirm maternal pulse (radial palpation): HR '+v.hr+' could be a fetal heart rate entered by mistake (or the reverse). Alerts already apply; confirm or re-measure now.',{task:true,level:'red'});
   if(v.abnormal)add('RF_ABNORMAL_VITALS','immediate','Measured HR ≥110 or SpO2 <95% (CMQCC): immediate clinician assessment of stability now.');
-  if(imp.length)add('VITAL_CONFIRM','prompt','Implausible value entered ('+imp.map(x=>({hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'}[x.k])+' '+x.v).join(', ')+'): recheck, then tap “Confirm value” if correct. Not counted until confirmed; never delays other IMMEDIATE alerts.',{task:true});
+  if(imp.length)add('VITAL_CONFIRM','prompt','Implausible value entered ('+imp.map(x=>({hr:'HR',spo2:'SpO2',sbp:'SBP',dbp:'DBP'}[x.k])+' '+x.v).join(', ')+'): recheck, then tap “Confirm value” if correct. Not counted until confirmed; never delays other IMMEDIATE alerts.',{task:true,level:'red'});
   const vitalsHold=!(bp.mode==='measured'&&bp.valid)||!v.measured;
-  const stable=bp.measured&&bp.valid&&!bp.severe&&bp.sbp>=90&&v.stable;
+  const stable=bp.measured&&bp.valid&&!bp.severe&&bp.sbp>=90&&v.stable&&v.hr>=50; // NC1: HR <50 is never stable
   // ---------- language / interpreter (NF14, NF17, NF18) ----------
   const interpreterNeeded=(s.patientLanguage&&s.patientLanguage!=='en')||(T.spanishText); // B2 carryover: Spanish text with English patient language asks the interpreter question
   const interpreterMissing=interpreterNeeded&&!INTERPRETERS.includes(s.interpreter);
@@ -228,10 +237,11 @@ function parseVitals(s){
   if(interpreterMissing)holds.push('interpreter');
   if(!['yes','no','cannot_separate'].includes(s.privateScreen))holds.push('private_screen');
   if(conflict)holds.push('status_conflict');
+  if(pulseConfirmNeeded)holds.push('pulse_confirm');
   const locked=lockedNow; // NF12 (+ bypass extension)
-  const held=!locked&&holds.length>0;
+  let held=!locked&&holds.length>0;
   const lockedUrgency=locked?'immediate':urgency;
-  const disposition=locked?'EMERGENT':held?null:(urgency==='immediate'?'EMERGENT':urgency==='urgent'?'URGENT':'PROMPT_CLINICIAN_REVIEW');
+  let disposition=locked?'EMERGENT':held?null:(urgency==='immediate'?'EMERGENT':urgency==='urgent'?'URGENT':'PROMPT_CLINICIAN_REVIEW');
   const followUp=locked?['Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items']:[];
   // ---------- sections / finish-screening reminders / discharge gate ----------
   const ans=id=>a[id]!==undefined;
@@ -239,20 +249,27 @@ function parseVitals(s){
   const treeItems=[...new Set(activeTrees.flatMap(t=>TREES[t].items.filter(vis)))];
   const sections=[
    {id:'safety',remaining:[...remainingOf(SAFETY),...(['yes','no','cannot_separate'].includes(s.privateScreen)?[]:['private_screen'])]},
-   {id:'vitals',remaining:[...(bp.mode==='measured'&&bp.valid?[]:['bp']),...(Number.isFinite(v.hr)?[]:['hr']),...(Number.isFinite(v.spo2)?[]:['spo2']),...(languageMissing?['patient_language']:[]),...(interpreterMissing?['interpreter']:[])]},
+   {id:'vitals',remaining:[...(bp.mode==='measured'&&bp.valid?[]:['bp']),...(Number.isFinite(v.hr)?[]:['hr']),...(Number.isFinite(v.spo2)?[]:['spo2']),...(languageMissing?['patient_language']:[]),...(interpreterMissing?['interpreter']:[]),...(pulseConfirmNeeded?['pulse_confirm']:[])]},
    {id:'gate',remaining:gateTapped?[]:remainingOf(GATE)},
    {id:'universal',remaining:remainingOf(UNIVERSAL)},
    {id:'complaint',remaining:[...(s.tree?[]:['pick_complaint']),...remainingOf(treeItems)]},
    ...(traumaOn?[{id:'addon',remaining:remainingOf([...ADDON_ITEMS,...MECH,'fall'])}]:[]),
    {id:'catch',remaining:remainingOf([...headers,'other_concern',...TREES_ITEMS_FROM(headerTrees)])},
   ].map(x=>({...x,done:x.remaining.length===0,deferred:x.remaining.length&&s.deferred&&DEFER_REASONS.includes(s.deferred[x.id])?s.deferred[x.id]:null}));
-  if(conflict)sections.push({id:'status',remaining:['status_conflict'],done:false,deferred:null});
+  if(conflict)sections.push({id:'status',remaining:['status_conflict'],done:false,deferred:s.deferred&&DEFER_REASONS.includes(s.deferred.status)?s.deferred.status:null});
+  // NC8: documented deferral releases a held non-locked disposition with a floor of URGENT, only if every hold is covered by a deferred section.
+  // Deferred items never count toward any downgrade (they stay unanswered); discharge home stays blocked below.
+  const defSec=new Set(sections.filter(x=>x.deferred).map(x=>x.id));
+  const holdSec={pick_complaint:['complaint'],vitals:['vitals'],patient_language:['vitals'],interpreter:['vitals'],pulse_confirm:['vitals'],private_screen:['safety'],status_conflict:['status']};
+  const covered=h=>h==='unanswered'?unanswered.every(id=>sections.some(x=>defSec.has(x.id)&&x.remaining.includes(id))):(holdSec[h]||[]).some(x=>defSec.has(x));
+  const deferRelease=held&&defSec.size>0&&holds.every(covered);
+  if(deferRelease){held=false;disposition=urgency==='immediate'?'EMERGENT':'URGENT';}
   // NB5: discharge home / non-emergency transfer needs vitals, safety, other emergencies (incl. fetal movement), trauma add-on and no status conflict.
   // NB8: a deferral never sets an answer and never opens this gate.
   const GATE_SECTIONS=['vitals','safety','universal','addon','status'];
   const dischargeOpen=sections.filter(x=>GATE_SECTIONS.includes(x.id)&&!x.done);
   const dischargeBlocked=dischargeOpen.length>0;
-  const r={version:1,bypassBy,sections,dischargeBlocked,dischargeOpen:dischargeOpen.map(x=>x.id),implausible:imp,uiLang:s.uiLang,status:st,statusChosen:s.status,statusConflict:conflict,gateTapped,locked:!!locked,urgency:lockedUrgency,disposition,held,holds,unanswered,states,requiredItems:[...req],activeTrees,headers,traumaOn,traumaDenied,downgradeLock,r5Lock,spanishPathLock,interpreterNeeded,privateEffective:privateEff,vitals:{bp,v,stable},alerts:out,tasks:out.filter(x=>x.task||x.urgency==='prompt'),followUp,facts:{ga:f.ga,postpartum:!!f.postpartum},blocked:[...s.blocked]};
+  const r={version:1,deferRelease,pulseConfirmNeeded,bypassBy,sections,dischargeBlocked,dischargeOpen:dischargeOpen.map(x=>x.id),implausible:imp,uiLang:s.uiLang,status:st,statusChosen:s.status,statusConflict:conflict,gateTapped,locked:!!locked,urgency:lockedUrgency,disposition,held,holds,unanswered,states,requiredItems:[...req],activeTrees,headers,traumaOn,traumaDenied,downgradeLock,r5Lock,spanishPathLock,interpreterNeeded,privateEffective:privateEff,vitals:{bp,v,stable},alerts:out,tasks:out.filter(x=>x.task||x.urgency==='prompt'),followUp,facts:{ga:f.ga,postpartum:!!f.postpartum},blocked:[...s.blocked]};
   r.sbar=sbar(s,r);
   return r;
  }
@@ -262,9 +279,9 @@ const DEFER_EN={unstable:'patient unstable/sedated',transferred:'transferred to 
 // NB8: documented deferral of an open section. Never sets any answer.
 function defer(s,section,reason){if(!DEFER_REASONS.includes(reason))return {ok:false,reason:'invalid'};s.deferred=s.deferred||{};s.deferred[section]=reason;return {ok:true};}
 // NB9: confirm a currently entered implausible vital.
-function confirmVital(s,k){const v=k==='sbp'||k==='dbp'?(s.bp&&s.bp[k]):s[k];if(!Number.isFinite(v))return {ok:false};s.confirmed=s.confirmed||{};s.confirmed[k]=v;return {ok:true};}
+function confirmVital(s,k){const v=k==='sbp'||k==='dbp'?(s.bp&&s.bp[k]):s[k==='pulse'?'hr':k];if(!Number.isFinite(v))return {ok:false};s.confirmed=s.confirmed||{};if(k==='hr'||k==='pulse'){s.confirmed.hr=v;s.confirmed.pulse=v;}else s.confirmed[k]=v;return {ok:true};} // NC1: one tap confirms the maternal pulse (and an implausible HR)
 const openList=r=>r.sections.filter(x=>!x.done).map(x=>SECTION_EN[x.id]+' ('+x.remaining.map(id=>ITEMS[id]?ITEMS[id].en:FIELD_EN[id]||id).join('; ')+')').join('; ');
- const FIELD_EN={status_conflict:'free text conflicts with status',bp:'BP',hr:'HR',spo2:'SpO2',patient_language:'patient language',interpreter:'interpreter',private_screen:'screened privately',pick_complaint:'pick a complaint'};
+ const FIELD_EN={pulse_confirm:'confirm maternal pulse (radial palpation)',status_conflict:'free text conflicts with status',bp:'BP',hr:'HR',spo2:'SpO2',patient_language:'patient language',interpreter:'interpreter',private_screen:'screened privately',pick_complaint:'pick a complaint'};
  const label=id=>ITEMS[id]?ITEMS[id].en:id;
  // NF3/NF12/NF17: SBAR in English for the chart, listing positives, not asked, not assessed and N/A items by name.
  function sbar(s,r){
@@ -280,7 +297,7 @@ const openList=r=>r.sections.filter(x=>!x.done).map(x=>SECTION_EN[x.id]+' ('+x.r
    'B: Status '+stat+(r.statusConflict?' (CONFLICT with free text; all items shown)':'')+'. Patient language '+lang+'; interpreter '+interp+'. App path '+(s.uiLang==='es'?'Spanish (provisional)':'English')+'.',
    'A: '+vit+'. Positive: '+(posIds.map(id=>label(id)+(r.states[id]==='unsure'?' (Unsure)':'')).join('; ')||'none')+'. Alerts: '+(r.alerts.filter(x=>!x.task).map(x=>x.id).join(', ')||'none')+'.',
    'R: '+(r.urgency==='immediate'?'Immediate clinician/team response now; never wait for form completion.':r.urgency==='urgent'?RF.URGENT_DEFINITION.en:'Accountable clinician review required; all-No is not clearance.')+(r.followUp.length?' '+r.followUp.join('. ')+'.':'')+(r.tasks.length?' Open tasks: '+r.tasks.map(x=>x.id).join(', ')+'.':''),
-   'Discharge home / non-emergency transfer: '+(r.dischargeBlocked?'BLOCKED until '+r.dischargeOpen.map(id=>SECTION_EN[id]).join(' + ')+' complete':'allowed by screening (vitals, safety screen, other emergencies'+(r.traumaOn?', trauma add-on':'')+' complete)')+'. Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.'+(r.locked?' Open screening at transfer: '+(openList(r)||'none')+'.':' Not yet screened: '+(openList(r)||'none')+'.')+(r.sections.some(x=>x.deferred)?' Deferred (open task): '+r.sections.filter(x=>x.deferred).map(x=>SECTION_EN[x.id]+' — reason: '+DEFER_EN[x.deferred]).join('; ')+'.':'')+(r.bypassBy.length?' Bypass to protocol triggered by: '+r.bypassBy.map(id=>ITEMS[id]?ITEMS[id].en:id==='vitals'?'measured vital sign':id).join('; ')+'.':'')+(r.implausible.length?' Unconfirmed implausible vitals: '+r.implausible.map(x=>x.k+' '+x.v).join(', ')+'.':''),
+   'Discharge home / non-emergency transfer: '+(r.dischargeBlocked?'BLOCKED until '+r.dischargeOpen.map(id=>SECTION_EN[id]).join(' + ')+' complete':'allowed by screening (vitals, safety screen, other emergencies'+(r.traumaOn?', trauma add-on':'')+' complete)')+'. Emergency transfer to L&D/OR/ICU/ED: never delay; hand off open screening items.'+(r.locked?' Open screening at transfer: '+(openList(r)||'none')+'.':' Not yet screened: '+(openList(r)||'none')+'.')+(r.sections.some(x=>x.deferred)?' Deferred (open task): '+r.sections.filter(x=>x.deferred).map(x=>SECTION_EN[x.id]+' — reason: '+DEFER_EN[x.deferred]).join('; ')+'.'+(r.deferRelease?' Disposition released by documented deferral (floor URGENT): admit, transfer to L&D/higher care, or clinician bedside evaluation allowed; discharge home stays blocked.':''):'')+(r.bypassBy.length?' Bypass to protocol triggered by: '+r.bypassBy.map(id=>ITEMS[id]?ITEMS[id].en:id==='vitals'?'measured vital sign':id).join('; ')+'.':'')+(r.implausible.length?' Unconfirmed implausible vitals: '+r.implausible.map(x=>x.k+' '+x.v).join(', ')+'.':''),
    'Not asked: '+(by('not_asked').map(label).join('; ')||'none')+'. Not assessed: '+(by('not_assessed').map(label).join('; ')||'none')+'. N/A by status: '+(by('na_status').map(label).join('; ')||'none')+'. Trauma add-on: '+(r.traumaOn?'asked':'not triggered')+'. Group No: '+(by('group_no').map(label).join('; ')||'none')+'.'
   ];
   return parts.join(' | ');

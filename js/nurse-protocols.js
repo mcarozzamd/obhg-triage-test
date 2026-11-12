@@ -30,7 +30,9 @@
  if(NC){for(const [id,c] of Object.entries(NC.CARDS))NAMES[id]={en:c.title.en+' (provisional card)',es:c.title.es+' (tarjeta provisional)'};for(const [id,c] of Object.entries(NC.ACTION))NAMES[id]={en:c.title.en,es:c.title.es};}
  // Per-link condition labels (Doc Q9 / NB1 / NB2 / NB11), bilingual (ES provisional).
  const COND={
+  if_mag:{en:'if on magnesium',es:'si recibe magnesio'},
   if_delivered:{en:'if delivered',es:'si ya tuvo el parto'},
+  if_lt20_test:{en:'if <20 wk / positive test',es:'si <20 semanas / prueba positiva'}, // NC7
   if_shoulder:{en:'if shoulder dystocia',es:'si hay distocia de hombros'},
   if_lt20:{en:'if <20 weeks',es:'si <20 semanas'},
   if_ipv:{en:'if violence/IPV',es:'si hay violencia de pareja'},
@@ -40,43 +42,44 @@
  const STATUS_LBL={unknown:{en:'status unknown',es:'estado desconocido'},lt20:{en:'for <20 wk',es:'para <20 semanas'},ge20:{en:'for ≥20 wk',es:'para ≥20 semanas'},postpartum:{en:'for postpartum',es:'para posparto'}};
  const L=(id,cond)=>cond?{id,cond}:{id};
  const st=(byStatus,dflt)=>s=>byStatus[s]||dflt;
- const PROV={en:'New provisional card — pending Doc and Michael review.',es:'Tarjeta nueva provisional — pendiente de revisión por Doc y Michael.'};
+ const PROV={en:'Provisional — new card pending Doc and Michael review.',es:'Provisional — tarjeta nueva pendiente de revisión por Doc y Michael.'}; // NC10
  const MAP={
   // NB1: ≥20 wk / unknown never opens PPH first; antepartum card first. <20 wk adds the ectopic algorithm.
-  hemorrhage:{links:st({lt20:[L('FD-GYN-01'),L('FD-GYNB-02'),L('GYN-02')],ge20:[L('NC-APH'),L('ANT-07','if_accreta')],postpartum:[L('FD-PP-01'),L('PP-01')]},[L('NC-APH'),L('FD-PP-01','if_delivered'),L('FD-GYN-01','if_lt20')]),level:'card',note:PROV},
-  breathing_chest:{links:()=>[L('SYS-02-EXP'),L('SYS-01')],level:'partial',note:{en:'No dedicated dyspnea/chest-pain or amniotic-fluid-embolism algorithm: PE diagnosis card + critical illness.',es:'No hay algoritmo específico de falta de aire, dolor de pecho o embolia de líquido amniótico: tarjeta de TEP y enfermedad crítica.'}},
+  hemorrhage:{links:st({lt20:[L('FD-GYN-01'),L('FD-GYNB-02'),L('GYN-02')],ge20:[L('NC-APH'),L('ANT-07','if_accreta')],postpartum:[L('FD-PP-01'),L('PP-01')]},[L('NC-APH'),L('FD-GYN-01','if_lt20_test'),L('FD-PP-01','if_delivered')]),level:'card',note:PROV}, // NC7 unknown order
+  breathing_chest:{links:()=>[L('SYS-02-EXP'),L('SYS-01')],level:'partial',note:{en:'Interim card — No dedicated dyspnea/chest-pain or amniotic-fluid-embolism algorithm: PE diagnosis card + critical illness.',es:'Tarjeta interina — No hay algoritmo específico de falta de aire, dolor de pecho o embolia de líquido amniótico: tarjeta de TEP y enfermedad crítica.'}},
   seizure_ams:{links:()=>[L('NC-ECL'),L('FD-ANT-04'),L('ANT-04'),L('FORMULARY')],level:'card',note:PROV}, // NB13
-  stroke:{links:()=>[L('EA-STROKE'),L('SYS-01'),L('FD-ANT-04')],level:'gap',note:{en:'No stroke protocol in this app: the hospital stroke code is the protocol (interim card).',es:'No hay protocolo de derrame cerebral en esta aplicación: el código de ictus del hospital es el protocolo (tarjeta provisional).'}}, // NB3
+  stroke:{links:()=>[L('EA-STROKE'),L('SYS-01'),L('FD-ANT-04')],level:'gap',note:{en:'Interim card — No stroke protocol in this app: the hospital stroke code is the protocol (interim card).',es:'Tarjeta interina — No hay protocolo de derrame cerebral en esta aplicación: el código de ictus del hospital es el protocolo (tarjeta provisional).'}}, // NB3
   cord_prolapse:{links:()=>[L('NC-CORD')],level:'card',note:PROV},
   birth_imminent:{links:()=>[L('NC-BIRTH'),L('FD-LND-06','if_shoulder')],level:'card',note:PROV}, // NB2
   anaphylaxis:{links:()=>[L('NC-ANAPH')],level:'card',note:PROV},
-  syncope:{links:st({lt20:[L('FD-GYN-01'),L('SYS-01')],ge20:[L('SYS-01'),L('NC-APH')],postpartum:[L('FD-PP-01'),L('SYS-01'),L('SYS-02-EXP')]},[L('SYS-01'),L('NC-APH'),L('FD-GYN-01','if_lt20')]),level:'partial',note:{en:'No syncope algorithm: nearest content by status; ≥20 wk think abruption, keep left lateral.',es:'No hay algoritmo de síncope: contenido más cercano según el estado; ≥20 semanas piense en desprendimiento, mantenga decúbito lateral izquierdo.'}},
+  syncope:{links:st({lt20:[L('FD-GYN-01'),L('SYS-01')],ge20:[L('SYS-01'),L('NC-APH')],postpartum:[L('FD-PP-01'),L('SYS-01'),L('SYS-02-EXP')]},[L('SYS-01'),L('NC-APH'),L('FD-GYN-01','if_lt20')]),level:'partial',note:{en:'Interim card — No syncope algorithm: nearest content by status; ≥20 wk think abruption, keep left lateral.',es:'Tarjeta interina — No hay algoritmo de síncope: contenido más cercano según el estado; ≥20 semanas piense en desprendimiento, mantenga decúbito lateral izquierdo.'}},
   // NB11: collapse split; a baby trigger never opens SYS-01 alone.
   collapse_maternal:{links:()=>[L('SYS-01')],level:'mapped'},
-  collapse_baby:{links:()=>[L('EA-NEO'),L('NC-BIRTH')],level:'gap',note:{en:'No neonatal resuscitation protocol in this app: the hospital NRP team/algorithm is the standard (interim card).',es:'No hay protocolo de reanimación neonatal en esta aplicación: el equipo y el algoritmo NRP del hospital son el estándar (tarjeta provisional).'}},
-  collapse_any:{links:()=>[L('SYS-01','mother'),L('EA-NEO','baby')],level:'partial',note:{en:'Free text did not say who collapsed: mother → SYS-01; baby → newborn card.',es:'El texto no indica quién colapsó: madre → SYS-01; bebé → tarjeta del recién nacido.'}},
+  collapse_baby:{links:()=>[L('EA-NEO'),L('NC-BIRTH')],level:'gap',note:{en:'Interim card — No neonatal resuscitation protocol in this app: the hospital NRP team/algorithm is the standard (interim card).',es:'Tarjeta interina — No hay protocolo de reanimación neonatal en esta aplicación: el equipo y el algoritmo NRP del hospital son el estándar (tarjeta provisional).'}},
+  collapse_any:{links:()=>[L('SYS-01','mother'),L('EA-NEO','baby')],level:'partial',note:{en:'Interim card — Free text did not say who collapsed: mother → SYS-01; baby → newborn card.',es:'Tarjeta interina — El texto no indica quién colapsó: madre → SYS-01; bebé → tarjeta del recién nacido.'}},
   critical_shock:{links:st({postpartum:[L('SYS-01'),L('FD-PP-01'),L('FD-SYS-03')]},[L('SYS-01'),L('FD-SYS-03')]),level:'mapped'},
   headache_vision:{links:()=>[L('FD-ANT-04'),L('ANT-04')],level:'mapped'},
   sepsis:{links:()=>[L('FD-SYS-03'),L('SYS-01')],level:'mapped'},
-  severe_abdominal:{links:st({lt20:[L('FD-GYN-01'),L('FD-GYNB-04')],unknown:[L('FD-GYN-01'),L('EA-ABD'),L('FD-GYNB-04')],ge20:[L('EA-ABD'),L('NC-APH')],postpartum:[L('FD-PP-01'),L('SYS-01'),L('FD-SYS-03')]},[L('FD-GYNB-04')]),level:'gap',note:{en:'No acute obstetric abdomen protocol at ≥20 wk (interim card).',es:'No hay protocolo de abdomen agudo obstétrico a las ≥20 semanas (tarjeta provisional).'}},
+  severe_abdominal:{links:st({lt20:[L('FD-GYN-01'),L('FD-GYNB-04')],unknown:[L('FD-GYN-01'),L('EA-ABD'),L('FD-GYNB-04')],ge20:[L('EA-ABD'),L('NC-APH')],postpartum:[L('FD-PP-01'),L('SYS-01'),L('FD-SYS-03')]},[L('FD-GYNB-04')]),level:'gap',note:{en:'Interim card — No acute obstetric abdomen protocol at ≥20 wk (interim card).',es:'Tarjeta interina — No hay protocolo de abdomen agudo obstétrico a las ≥20 semanas (tarjeta provisional).'}},
   ectopic:{links:()=>[L('FD-GYN-01')],level:'mapped'},
   harm_intent:{links:()=>[L('NC-SI')],level:'card',note:PROV},
   psychosis:{links:()=>[L('NC-PSY'),L('NC-SI')],level:'card',note:PROV},
   ipv_safety:{links:()=>[L('NC-IPV')],level:'card',note:PROV},
-  trauma:{links:()=>[L('EA-TRAUMA'),L('NC-IPV','if_ipv')],level:'gap',note:{en:'No trauma-in-pregnancy protocol in this app (interim card; workup text is in the flow).',es:'No hay protocolo de trauma en el embarazo en esta aplicación (tarjeta provisional; el estudio está en el flujo).'}},
+  trauma:{links:()=>[L('EA-TRAUMA'),L('NC-IPV','if_ipv')],level:'gap',note:{en:'Interim card — No trauma-in-pregnancy protocol in this app (interim card; workup text is in the flow).',es:'Tarjeta interina — No hay protocolo de trauma en el embarazo en esta aplicación (tarjeta provisional; el estudio está en el flujo).'}},
   RF_SEVERE_BP:{links:()=>[L('FD-ANT-04'),L('ANT-04')],level:'mapped'},
   // NB10: postpartum SBP <90 / HR / SpO2 also links sepsis and critical illness (+ PE for HR/SpO2); ≥20 wk SBP <90 adds the antepartum card.
   RF_SBP_LOW:{links:st({postpartum:[L('FD-PP-01'),L('FD-SYS-03'),L('SYS-01')],ge20:[L('SYS-01'),L('FD-SYS-03'),L('NC-APH')],unknown:[L('SYS-01'),L('FD-SYS-03'),L('NC-APH')]},[L('SYS-01'),L('FD-SYS-03')]),level:'mapped'},
   RF_ABNORMAL_VITALS:{links:st({postpartum:[L('FD-PP-01'),L('FD-SYS-03'),L('SYS-01'),L('SYS-02-EXP')]},[L('SYS-01'),L('FD-SYS-03'),L('SYS-02-EXP')]),level:'mapped'},
   RF_ROM_LABOR:{links:()=>[L('FD-ANT-01'),L('ANT-02')],level:'mapped'},
-  generic:{links:()=>[L('EA-GENERIC')],level:'gap',note:{en:'No specific protocol mapped for this alert.',es:'No hay protocolo específico para esta alerta.'}},
+  RF_BRADY:{links:()=>[L('SYS-01'),L('FORMULARY','if_mag')],level:'partial',note:{en:'Interim card — no maternal bradycardia algorithm: critical illness + magnesium toxicity (calcium gluconate) in the formulary.',es:'Tarjeta interina — no hay algoritmo de bradicardia materna: enfermedad crítica + toxicidad por magnesio (gluconato de calcio) en el formulario.'}}, // NC1
+  generic:{links:()=>[L('EA-GENERIC')],level:'gap',note:{en:'Interim card — No specific protocol mapped for this alert.',es:'Tarjeta interina — No hay protocolo específico para esta alerta.'}},
  };
  for(const m of Object.values(MAP))m.ids=s=>m.links(s).map(x=>x.id);
- const ALERT_KEY={RF_TRAUMA_DANGER:'trauma',RF_FALL_HIGH:'trauma',IPV_SAFETY:'ipv_safety',RF_INTERPRETER_SI:'harm_intent',TEXT_ABNORMAL_VITALS:'RF_ABNORMAL_VITALS',RF_PUL_LOCK:'ectopic',
+ const ALERT_KEY={TEXT_BRADY:'RF_BRADY',RF_TRAUMA_DANGER:'trauma',RF_FALL_HIGH:'trauma',IPV_SAFETY:'ipv_safety',RF_INTERPRETER_SI:'harm_intent',TEXT_ABNORMAL_VITALS:'RF_ABNORMAL_VITALS',RF_PUL_LOCK:'ectopic',
   HEMORRHAGE:'hemorrhage',CARDIOPULMONARY:'breathing_chest',SEIZURE:'seizure_ams',STROKE:'stroke',SEVERE_BP:'RF_SEVERE_BP',NEURO_OB_WARNING:'headache_vision',CORD_PROLAPSE:'cord_prolapse',SEPSIS:'sepsis',SHOCK:'critical_shock',ANAPHYLAXIS:'anaphylaxis',COLLAPSE:'collapse_any',ECTOPIC:'ectopic',MENTAL_HEALTH:'harm_intent',OVERDOSE:'harm_intent',TRAUMA_IPV:'trauma',OB_EMERGENCY:'birth_imminent',ABRUPTION:'severe_abdominal'};
  function keyFor(alert){if(alert.itemId&&MAP[alert.itemId])return alert.itemId;if(alert.itemId&&String(alert.itemId).startsWith('mech_'))return 'trauma';if(MAP[alert.id]&&alert.id!=='generic')return alert.id;return ALERT_KEY[alert.id]||null;}
  // NB12: trigger order — cord prolapse, collapse and birth-imminent first, then the gate order, vitals, universals, safety, trauma.
- const ORDER=['cord_prolapse','collapse_maternal','collapse_baby','collapse_any','birth_imminent','hemorrhage','anaphylaxis','seizure_ams','breathing_chest','stroke','critical_shock','syncope','RF_SEVERE_BP','RF_SBP_LOW','RF_ABNORMAL_VITALS','headache_vision','sepsis','severe_abdominal','ectopic','RF_ROM_LABOR','harm_intent','psychosis','ipv_safety','trauma','generic'];
+ const ORDER=['collapse_maternal','collapse_baby','collapse_any','cord_prolapse','birth_imminent','hemorrhage','anaphylaxis','seizure_ams','breathing_chest','stroke','critical_shock','syncope','RF_SEVERE_BP','RF_SBP_LOW','RF_ABNORMAL_VITALS','RF_BRADY','headache_vision','sepsis','severe_abdominal','ectopic','RF_ROM_LABOR','harm_intent','psychosis','ipv_safety','trauma','generic'];
  // Protocol buttons for the current IMMEDIATE alerts. Pure; never changes acuity. Unmapped IMMEDIATE alerts get the generic card (NB4: no dead end).
  function forResult(r){
   const out=[],seen=new Set(),stat=r.status||'unknown';
