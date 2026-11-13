@@ -1,0 +1,201 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0B3D5C">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; img-src 'self' data: https://obhgtriage.goatcounter.com; style-src 'self'; script-src 'self' https://gc.zgo.at; connect-src 'self' https://obhgtriage.goatcounter.com; form-action 'none'; base-uri 'none'">
+<meta name="robots" content="noindex, nofollow">
+<title>OBHG CLINICAL TRIAGE</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="assets/icons/icon-192.png">
+<link rel="apple-touch-icon" href="assets/icons/icon-180.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="OBHG Triage">
+<link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+<div class="lp-marker" role="note">TEST PREVIEW · new start page (698ec97) · not the live app</div>
+<header class="hdr">
+  <div class="hdr-org">CHRISTUS ST. MICHAEL · OBHG · TEXARKANA</div>
+  <h1>OBHG CLINICAL TRIAGE</h1>
+</header>
+
+<nav id="section-bar" class="secbar" aria-label="Section" hidden>
+  <button type="button" id="go-start" class="secbar-home" data-go="start">← Start</button>
+  <span id="section-title" class="secbar-title"></span>
+  <button type="button" id="sec-back" class="secbar-back" hidden></button>
+</nav>
+
+<main>
+<section id="view-start" class="start" aria-labelledby="start-h">
+  <h2 id="start-h" class="start-h">Choose a section</h2>
+  <div class="start-grid">
+    <button type="button" class="start-tile" id="start-clinician" data-go="clinician">
+      <svg class="st-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M14 6v12a8 8 0 0 0 16 0V6M22 26v6a10 10 0 0 0 20 0v-4"/><circle cx="42" cy="24" r="4"/></svg>
+      <span class="st-txt"><span class="st-name">Clinician</span><span class="st-sub">One-line HPI triage, algorithms and suggested codes</span></span>
+    </button>
+    <a class="start-tile" id="start-nurse" href="nurse.html" data-last="nurse">
+      <svg class="st-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="8" y="8" width="32" height="34" rx="4"/><path d="M18 8V4h12v4M24 17v14M17 24h14"/></svg>
+      <span class="st-txt"><span class="st-name">Nurse</span><span class="st-sub">Nurse triage: act-now screen, complaint questions, SBAR</span></span>
+    </a>
+    <button type="button" class="start-tile" id="start-browse" data-go="browse">
+      <svg class="st-ico" viewBox="0 0 48 48" aria-hidden="true"><path d="M6 10h14a4 4 0 0 1 4 4v26a3 3 0 0 0-3-3H6zM42 10H28a4 4 0 0 0-4 4v26a3 3 0 0 1 3-3h15z"/></svg>
+      <span class="st-txt"><span class="st-name">Browse Guidelines</span><span class="st-sub">Search every card and algorithm</span></span>
+    </button>
+    <button type="button" class="start-tile" id="start-log" data-go="log">
+      <svg class="st-ico" viewBox="0 0 48 48" aria-hidden="true"><rect x="9" y="6" width="30" height="36" rx="3"/><path d="M16 16h16M16 24h16M16 32h10"/></svg>
+      <span class="st-txt"><span class="st-name">Patient log</span><span class="st-sub">Shift patient log on this device (initials only)</span></span>
+    </button>
+  </div>
+  <p class="foot"><b>Decision support only · not unit policy · not the medical record · enter no PHI.</b></p>
+</section>
+
+<section id="view-triage" hidden>
+  <form id="hpi-form" autocomplete="off">
+    <label for="hpi" class="lbl">One-line HPI</label>
+    <div class="hpi-row">
+      <textarea id="hpi" rows="2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"
+        placeholder="e.g. 20 yo G2P1 at 37 weeks with blood pressure 150/100 and headache"></textarea>
+    </div>
+    <p class="privacy-line">Do not enter names, MRNs, dates of birth, or other identifiers.</p>
+    <div id="privacy-warn" class="privacy-warn" hidden></div>
+    <div class="btns">
+      <button id="go" class="primary" type="button">Triage</button>
+      <button id="clear" type="button">Clear</button>
+    </div>
+    <details class="examples"><summary>Examples</summary><div id="examples"></div></details>
+  </form>
+
+  <div id="result" hidden>
+    <div id="flags" class="chips"></div>
+    <article id="top" class="topcard"></article>
+    <section class="box"><h3>Also consider</h3><div id="alts" class="alts"></div></section>
+    <section class="box"><h3>Why this matched</h3><div id="why"></div></section>
+    <section class="box coding" id="coding-box">
+      <h3>Suggested codes · verify against documentation and payer rules · not billing advice</h3>
+      <div id="coding"></div>
+    </section>
+  </div>
+  <p class="foot"><b>Decision support only · not unit policy · not the medical record · enter no PHI.</b><br>All matching runs on this device. Triage text is not sent, saved, or logged. Shift log entries stay on-device; optional lookup links send only your reviewed clinical query. Works offline after first load.</p>
+</section>
+
+<section id="view-browse" hidden>
+  <input id="q" type="search" placeholder="Search every card and diagram (e.g. magnesium, JADA, torsion)" autocomplete="off" spellcheck="false">
+  <div id="list"></div>
+</section>
+<section id="view-log" hidden>
+  <div id="profile-box" class="box" hidden>
+    <h3>PROVIDER PROFILE (STORED ON THIS DEVICE ONLY)</h3>
+    <label class="lbl" for="pf-name">Provider name</label><input id="pf-name" maxlength="80" autocomplete="off">
+    <label class="lbl" for="pf-title">Credentials / title</label><input id="pf-title" maxlength="40" placeholder="MD, DO, CNM..." autocomplete="off">
+    <label class="lbl" for="pf-site">Site</label><input id="pf-site" maxlength="80" value="CHRISTUS St. Michael" autocomplete="off">
+    <label class="lbl" for="pf-ret">Keep closed shift logs for</label><select id="pf-ret"><option value="7">7 days</option><option value="30" selected>30 days</option><option value="90">90 days</option><option value="0">Keep until I delete</option></select>
+    <div class="btns"><button id="pf-save" class="primary" type="button">Save profile</button></div>
+  </div>
+  <div id="log-main" hidden>
+    <div class="box"><div id="log-head"></div><button id="pf-edit" type="button" class="small">Edit profile</button></div>
+    <div class="box" id="log-form">
+      <h3 id="lg-form-title">NEW ENTRY</h3>
+      <div id="lg-amend-note" class="amend-note" hidden></div>
+      <label class="lbl" for="lg-hpi">One-line summary (auto-fills fields below; never saved)</label>
+      <textarea id="lg-hpi" rows="2" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. AB 22 yo G1P0 at 32 weeks with leaking fluid, admit antepartum"></textarea>
+      <div id="lg-warn" class="privacy-warn" hidden></div>
+      <div class="lgrid">
+        <label>Initials<input id="lg-initials" maxlength="3" pattern="[A-Za-z]{2,3}" autocomplete="off" autocapitalize="characters"></label>
+        <label>Age<input id="lg-age" inputmode="numeric" maxlength="3" autocomplete="off"></label>
+        <label>G/P<input id="lg-gp" maxlength="40" placeholder="2/1 or G2P1" autocomplete="off"></label>
+        <label>GA<input id="lg-ga" maxlength="7" placeholder="37w2d" autocomplete="off"></label>
+        <label class="wide">HPI (used for DDx, codes, triage; cleared on save, never stored)<textarea id="lg-hpi2" rows="3" maxlength="600" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="e.g. leaking fluid since this morning, positive fern, afebrile"></textarea></label>
+      </div>
+      <div class="btns"><button id="lg-suggest" class="primary" type="button">Refresh DDx / codes + triage</button></div>
+      <p class="alt-tag">Triage updates automatically as you type the summary, HPI, or demographics.</p>
+      <div class="box routinebox">
+        <h3>ROUTINE ENCOUNTER (ONE TAP)</h3>
+        <label class="lbl" for="lg-svc">Service</label><select id="lg-svc"><option value="AUTO">Auto (blank GA and G/P = GYN)</option><option value="OB">OB</option><option value="GYN">GYN</option></select>
+        <div id="lg-svc-now" class="alt-tag"></div>
+        <div class="lgrid">
+          <label>I delivered<select id="lg-deliv"><option value="no">No</option><option value="yes">Yes</option></select></label>
+          <label>Patient<select id="lg-pt"><option value="NEW">New</option><option value="EST">Established</option></select></label>
+          <label>Observation<select id="lg-obs"><option value="">No (OBED/triage)</option><option value="same">Same-day (99234-99236)</option><option value="multi">Multi-day (99221-99223 + 99238/99239)</option></select></label>
+          <label>My group did surgery<select id="lg-surg"><option value="no">No</option><option value="yes">Yes</option></select></label>
+        </div>
+        <p class="alt-tag">OBED default E/M 99281-99285; office new/established are alternates. Admit E/M is logged with delivery codes for OBHG tracking (not billed). Observation requires an order. Verify with OBHG coding.</p>
+        <div class="subh">OB</div><div id="lg-routine" class="qpick"></div>
+        <div class="subh">GYN</div><div id="lg-routine-gyn" class="qpick"></div>
+        <div id="lg-routine-alts" class="alt-tag"></div>
+        <p class="alt-tag">Routine codes are PENDING DOC REVIEW (review 1 applied). Z3A.xx comes from the GA field (none when GA blank). GYN entries need no GA or G/P.</p>
+      </div>
+      <div id="lg-sugg" hidden></div>
+      <div id="lg-triage" class="box triagebox" hidden>
+        <h3>TRIAGE · DECISION SUPPORT ONLY · CLINICIAN MUST VERIFY</h3>
+        <div id="lg-using" class="alt-tag"></div>
+        <div id="lg-tri-cards"></div>
+        <div class="subh">ASSESSMENT AND PLAN DRAFT (rule-based from card content, on-device, no AI)</div>
+        <p id="lg-flow-reference" class="privacy-warn" hidden>This flow has conditional branches. The draft reproduces its source reference, not simultaneous orders. Select the relevant actions and enter the short Plan manually.</p>
+        <textarea id="lg-ap" rows="14" readonly spellcheck="false" autocomplete="off"></textarea>
+        <div class="btns"><button id="lg-ap-insert" data-act="ap-insert" class="primary" type="button">Insert A&amp;P + codes into entry ↓</button><button id="lg-ap-copy" data-act="ap-copy" type="button">Copy A&amp;P to clipboard</button></div>
+        <div id="lg-ap-fallback" hidden><p class="privacy-warn">Copy not available here. Press and hold the text below, then Select All and Copy.</p><textarea id="lg-ap-sel" rows="8" spellcheck="false"></textarea></div>
+        <p class="alt-tag">Insert fills Diagnosis / ICD / CPT / Disposition (saved) and places the A&amp;P text in the entry's A&amp;P box (on screen only, cleared on save, never stored). A short Plan excerpt is saved in the log; review it before saving. Ellipses mark omitted text.</p>
+      </div>
+      <div class="lgrid">
+        <label class="wide">Diagnosis<input id="lg-diagnosis" maxlength="120" autocomplete="off"></label>
+        <label>ICD<input id="lg-icd" maxlength="120" autocomplete="off"></label>
+        <label>CPT<input id="lg-cpt" maxlength="120" autocomplete="off"></label>
+        <label>Disposition<select id="lg-disposition"></select></label>
+        <label>Clinic<input id="lg-clinic" maxlength="40" autocomplete="off"></label>
+        <label class="wide">Code search (ICD/CPT text or code prefix)<input id="lg-codeq" type="search" maxlength="40" autocomplete="off" spellcheck="false" placeholder="e.g. false labor, O80, 5940"></label>
+        <div id="lg-coderes" class="wide coderes"></div>
+        <label class="wide">Plan (short log summary; verify before saving)<textarea id="lg-plan" rows="2" maxlength="240" autocomplete="off" spellcheck="false" placeholder="Brief actions / follow-up only; no identifiers"></textarea></label>
+        <label class="wide">A&amp;P for this entry (copy to your note; not saved)<textarea id="lg-apentry" rows="4" autocomplete="off" spellcheck="false"></textarea></label>
+      </div>
+      <p class="privacy-line">Initials only (2-3 letters). No names, MRNs, DOBs, or other identifiers.</p>
+      <p class="alt-tag"><b>Codes are suggestions; provider verifies before billing.</b></p>
+      <div id="lg-err" class="privacy-warn" hidden></div>
+      <div class="btns"><button id="lg-add" class="primary" type="button">Add to log</button><button id="lg-cancel" type="button" hidden>Cancel amendment</button></div>
+    </div>
+    <div class="box"><h3>THIS SHIFT</h3><p class="alt-tag"><b>Codes are suggestions; provider verifies before billing.</b></p><div class="logwrap"><table id="log-table" class="logtab"></table></div>
+      <div class="btns"><button id="lg-closeout" type="button">Close shift log</button><button id="lg-carry" type="button">Bring carry-overs into this shift</button><button id="lg-export" class="primary" type="button">Export PDF</button><button id="lg-purge" type="button" class="danger">Purge after export</button><button id="lg-new" type="button">Start new shift log</button></div>
+      <section id="closeout-panel" class="box" aria-label="Close shift log review" hidden>
+        <h3>CLOSE SHIFT LOG REVIEW</h3>
+        <p id="closeout-summary"></p><p class="alt-tag">Open = anything not discharged home or transferred. Inpatients are preselected; review each selection. This is a handoff aid, not a medical disposition order. Save any entry or update drafts first; unsaved drafts are not included.</p>
+        <div id="closeout-list"></div>
+        <div class="btns"><button id="closeout-finalize" class="primary" type="button">Finalize + export PDF</button><button id="closeout-cancel" type="button">Cancel</button></div>
+      </section>
+      <section id="carry-panel" class="box" aria-label="Carry-over review" hidden>
+        <h3>CARRY OVER TO THIS SHIFT</h3><p class="alt-tag">Review current status before import. Original notes are retained; each source row can be imported only once. Unimported rows expire with the source shift's retention setting.</p>
+        <div id="carry-list"></div><div class="btns"><button id="carry-import" class="primary" type="button">Import selected</button><button id="carry-cancel" type="button">Cancel</button></div>
+      </section>
+      <p id="closeout-status" role="status" hidden></p>
+      <p class="alt-tag">Entries are append-only; use Amend to correct in place (timestamped audit trail kept) or Void to strike through. Shifts roll over automatically at 08:00. Closed shifts are purged automatically per your retention setting (<span id="ret-label"></span>). Log data stays on this device except PDF sharing and explicitly reviewed external lookups.</p>
+      <div id="row-actions" aria-label="Per-row updates and lookups"></div>
+    </div>
+    <div class="box"><h3>PAST SHIFTS</h3><div id="past"></div></div>
+    <div class="box" id="past-view" hidden><h3 id="pv-title"></h3><p class="alt-tag">Read-only.</p><div class="logwrap"><table id="pv-table" class="logtab"></table></div>
+      <div class="btns"><button id="pv-export" class="primary" type="button">Export PDF</button><button id="pv-purge" type="button" class="danger">Purge after export</button><button id="pv-close" type="button">Close</button></div></div>
+  </div>
+</section>
+</main>
+
+<div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+<div id="sw-update" class="sw-update" hidden>New version available. <button id="sw-reload" type="button" class="small">Reload</button></div>
+<div id="viewer" class="viewer" hidden>
+  <div class="viewer-bar"><span id="viewer-title"></span>
+    <button id="zoom-out" type="button" aria-label="Zoom out">−</button><button id="zoom-in" type="button" aria-label="Zoom in">+</button>
+    <button id="viewer-close" type="button">Close</button></div>
+  <div class="viewer-body" id="viewer-body"><img id="viewer-img" alt=""></div>
+</div>
+
+<script src="js/content.js"></script>
+<script src="js/display-names.js"></script>
+<script src="js/review.js"></script>
+<script src="codes/code_tables.js"></script>
+<script src="codes/validation.js"></script>
+<script src="js/engine.js"></script>
+<script src="js/routine_codes.js"></script>
+<script src="js/flowplans.js"></script>
+<script src="js/shiftlog.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>
