@@ -1,5 +1,6 @@
-// TEST-SITE PREVIEW of commit fdc0b08 (served from /trauma-preview/, scope /trauma-preview/).
-// OBHG CLINICAL TRIAGE service worker. v29 (13 Nov 2026): adds OBED triage branches and house decisions to the provisional trauma and STI algorithms (test build).
+// TEST-SITE PREVIEW of commit 3b215df (served from /trauma-preview/, scope /trauma-preview/).
+// OBHG CLINICAL TRIAGE service worker. v30 (13 Nov 2026): Doc review fixes — GYNB-06 pregnancy gate, stiLD flank/CVA, SMFM #69 HBIG dose line (test build).
+// v29 (13 Nov 2026): adds OBED triage branches and house decisions to the provisional trauma and STI algorithms (test build).
 // v28 (13 Nov 2026): adds provisional FD-ANT-TRAUMA and FD-ANT-STI algorithms (test build).
 // v27 (13 Nov 2026): adds provisional ANT-TRAUMA (trauma in pregnancy) clinician card.
 // v26 (13 Nov 2026): start page with four sections (Clinician, Nurse, Browse Guidelines, Patient log).
@@ -7,7 +8,7 @@
 // v24 (11 Nov 2026): precaches the plain-name diagram images the app shows; original diagram files are cached on first use.
 // Only deletes caches with its own prefix. Cache-first assets, network-first navigation. No network calls carry user input.
 const PREFIX = 'obhg-traumapreview-'; // TEST copy only: distinct prefix so this SW never deletes the root test site's or /start-preview/'s caches
-const CACHE = PREFIX + 'v29-2026-11-13-trauma-obed';
+const CACHE = PREFIX + 'v30-2026-11-13-trauma-obed-fix';
 const ASSETS = [
   './',
   './index.html',
