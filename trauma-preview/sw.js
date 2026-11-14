@@ -1,5 +1,6 @@
-// TEST-SITE PREVIEW of commit d834a37 (served from /trauma-preview/, scope /trauma-preview/).
-// OBHG CLINICAL TRIAGE service worker. v35 (14 Nov 2026): source-metadata labels cleaned (no clinical change).
+// TEST-SITE PREVIEW of commit 5335f74 (served from /trauma-preview/, scope /trauma-preview/).
+// OBHG CLINICAL TRIAGE service worker. v36 (14 Nov 2026): house answers applied to trauma, STI and UTI (RhIG, delayed-presentation monitoring, case management, TP-PA, test-of-cure timing, postpartum suppression).
+// v35 (14 Nov 2026): source-metadata labels cleaned (no clinical change).
 // v34 (14 Nov 2026): release cleanup: internal review flags and personal approval attributions removed app-wide (no clinical change).
 // v33 (13 Nov 2026): ANT-TRAUMA, ANT-STI and ANT-UTI cards and algorithms released.
 // v32 (13 Nov 2026): ANT-TRAUMA, ANT-STI and ANT-UTI cards and algorithms with OBED triage (live).
@@ -13,7 +14,7 @@
 // v24 (11 Nov 2026): precaches the plain-name diagram images the app shows; original diagram files are cached on first use.
 // Only deletes caches with its own prefix. Cache-first assets, network-first navigation. No network calls carry user input.
 const PREFIX = 'obhg-traumapreview-'; // TEST copy only: distinct prefix so this SW never deletes the root test site's or /start-preview/'s caches
-const CACHE = PREFIX + 'v35-2026-11-14-release';
+const CACHE = PREFIX + 'v36-2026-11-14-house-answers';
 const ASSETS = [
   './',
   './index.html',
