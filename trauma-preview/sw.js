@@ -1,5 +1,7 @@
-// TEST-SITE PREVIEW of commit 2f84a12 (served from /trauma-preview/, scope /trauma-preview/).
-// OBHG CLINICAL TRIAGE service worker. v31 (13 Nov 2026): adds provisional ANT-UTI and FD-ANT-UTI (test build).
+// TEST-SITE PREVIEW of commit 022c053 (served from /trauma-preview/, scope /trauma-preview/).
+// OBHG CLINICAL TRIAGE service worker. v33 (13 Nov 2026): ANT-TRAUMA, ANT-STI and ANT-UTI cards and algorithms released (provisional labels removed).
+// v32 (13 Nov 2026): provisional ANT-TRAUMA, ANT-STI and ANT-UTI cards and algorithms with OBED triage (live).
+// v31 (13 Nov 2026): adds provisional ANT-UTI and FD-ANT-UTI (test build).
 // v30 (13 Nov 2026): Doc review fixes — GYNB-06 pregnancy gate, stiLD flank/CVA, SMFM #69 HBIG dose line (test build).
 // v29 (13 Nov 2026): adds OBED triage branches and house decisions to the provisional trauma and STI algorithms (test build).
 // v28 (13 Nov 2026): adds provisional FD-ANT-TRAUMA and FD-ANT-STI algorithms (test build).
@@ -9,7 +11,7 @@
 // v24 (11 Nov 2026): precaches the plain-name diagram images the app shows; original diagram files are cached on first use.
 // Only deletes caches with its own prefix. Cache-first assets, network-first navigation. No network calls carry user input.
 const PREFIX = 'obhg-traumapreview-'; // TEST copy only: distinct prefix so this SW never deletes the root test site's or /start-preview/'s caches
-const CACHE = PREFIX + 'v31-2026-11-13-ant-uti';
+const CACHE = PREFIX + 'v33-2026-11-13-unprovisional';
 const ASSETS = [
   './',
   './index.html',
